@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>D3.js example 1 - Enter, Update, Exit.</title>
+<script src="script/d3.js"></script>
+<style>
+.bar-wrap {
+    border: 1px solid #000;
+    height: 300px;
+    width: 400px;
+    overflow: hidden;
+    position: relative;
+}
+.bar {
+    display: block;
+    width: 22px;
+    position: absolute;
+    bottom: 0;
+    color: #fff;
+    background-color: #333;
+    text-align: center;
+    padding-top: 2px;
+    margin-right: 2px;
+}
+</style>
+</head>
+<body>
+
+<div class="bar-wrap"></div>
+
+
+<script>
+var data = [1, 50, 23, 15, 7, 39, 22, 24, 46, 18, 4];
+
+// Enter
+var enterFunc = function (data) {
+    d3.select(".bar-wrap").selectAll("div.bar")
+        .data(data)
+        .enter()
+        .append("div")
+        .attr("class", "bar");
+};
+
+// Update
+var updateFunc = function (data) {
+    d3.select(".bar-wrap").selectAll("div.bar")
+        .data(data)
+        .text(function (d) {
+        return d;
+    })
+        .style({
+        "height": function (d) {
+            return (d * 5) + 10 + "px";
+        },
+            "left": function (d, i) {
+            return (i + 1) * 24 + 'px';
+        }
+    });
+};
+
+// Exit
+var exitFunc = function (data) {
+    d3.select(".bar-wrap").selectAll("div.bar")
+        .data(data)
+        .exit()
+        .remove();
+};
+
+enterFunc(data);
+updateFunc(data);
+exitFunc(data);
+
+// update data per 2 seconds.
+setInterval(function () {
+    data.shift();
+    data.push(Math.round(Math.random() * 50));
+    updateFunc(data);
+    exitFunc(data);
+}, 2000);
+</script>
+
+</body>
+</html>
