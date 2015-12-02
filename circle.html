@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+  <style>
+    svg{ display: block; width: 500px; height: 500px; }
+  </style>
+</head>
+<body>
+
+<script>
+  var data = [];
+for(var i = 0; i < 32; i++){
+  data.push(Math.floor((Math.random() * 10) + 2));
+  data.push(0);
+}
+// 準備 20 組的綠色色碼
+var colorScale = d3.scale.linear()
+          .domain([1, 20])
+          .range(["#E7E879", "#55B36C"]);
+// 將 data 內的數值轉成 0 ~ 2, 以便 arc 使用
+var arcScale = d3.scale.linear()
+          .domain([0, d3.sum(data)])
+          .range([0, 2]);
+var arc = d3.svg.arc().innerRadius(120).outerRadius(108);
+var svg = d3.select('body').append('svg');
+var curr = 0;
+svg.selectAll('path')
+  .data(data)
+  .enter()
+  .append('path')
+  .attr({
+    'class': 'outer',
+    'd': function(d, i){
+      var currend = 0;
+      if( i >0 && i < data.length ) curr += data[i];
+      currend = arcScale(curr + data[i+1]) || 2;
+
+      // 計算每個 arc 的起點與終點位置
+      return arc({
+        "startAngle": Math.PI * arcScale(curr),
+        "endAngle": Math.PI * currend
+      });
+    },
+//     'transform': 'translate(25, 55)',
+    'fill': function(d, i){
+      // 隨機吐一組綠色
+      return (i % 2 === 0) ? '#fff' : colorScale( Math.floor((Math.random()* 20)) );
+    }
+});
+(function(){
+  var outer = d3.selectAll('.outer');
+  var i = 0;
+
+  d3.timer(function(){
+    outer.attr('transform', 'translate(125, 125) rotate('+ (i++)%360 +' 0 0)');
+  });
+
+})();
+</script>
+</body>
+</html>
