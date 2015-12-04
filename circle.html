@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <!-- <script src="d3-shape.min.js"></script> -->
   <meta charset="utf-8">
   <title>D3 Circle</title>
   <style>
@@ -12,22 +13,36 @@
 
 <script>
   var data = [];
-for(var i = 0; i < 32; i++){
-  data.push(Math.floor((Math.random() * 10) + 2));
-  data.push(0);
+for(var i = 0; i < 16; i++){
+  data.push(Math.floor((Math.random() * 22) + 2));
+  data.push(Math.floor((Math.random() * 5) + 1));
 }
 // 準備 20 組的綠色色碼
 var colorScale = d3.scale.linear()
-          .domain([1, 20])
+          .domain([1, 25])
           .range(["#E7E879", "#55B36C"]);
+
 // 將 data 內的數值轉成 0 ~ 2, 以便 arc 使用
 var arcScale = d3.scale.linear()
           .domain([0, d3.sum(data)])
           .range([0, 2]);
-var arc = d3.svg.arc().innerRadius(120).outerRadius(108);
+
+var arc = d3.svg.arc().innerRadius(120).outerRadius(132).cornerRadius(30);
 var svg = d3.select('body').append('svg');
 var curr = 0;
-svg.selectAll('path')
+
+svg.selectAll('path.bg')
+  .data([1])
+  .enter()
+  .append('path')
+  .attr({
+    'class': 'bg',
+    'd': function(d, i){ return arc({ "startAngle": 0, "endAngle": Math.PI * 2 }); },
+    'transform': 'translate(155, 155)',
+    'fill': function(d, i){ return colorScale(1); }
+  });
+
+svg.selectAll('path.outer')
   .data(data)
   .enter()
   .append('path')
@@ -35,6 +50,7 @@ svg.selectAll('path')
     'class': 'outer',
     'd': function(d, i){
       var currend = 0;
+
       if( i >0 && i < data.length ) curr += data[i];
       currend = arcScale(curr + data[i+1]) || 2;
 
@@ -44,21 +60,31 @@ svg.selectAll('path')
         "endAngle": Math.PI * currend
       });
     },
-//     'transform': 'translate(25, 55)',
     'fill': function(d, i){
       // 隨機吐一組綠色
-      return (i % 2 === 0) ? '#fff' : colorScale( Math.floor((Math.random()* 20)) );
+      return (i % 2 === 0) ? 'transparent' : colorScale( Math.floor((Math.random() * 22) + 3) );
     }
 });
+
+
 (function(){
   var outer = d3.selectAll('.outer');
-  var i = 0;
+  var bg = d3.selectAll('.bg');
+  var i = 0, start = 0;
 
-  d3.timer(function(){
-    outer.attr('transform', 'translate(125, 125) rotate('+ (i++)%360 +' 0 0)');
+  d3.timer(function(timestamp){
+    i += Math.random() * 0.8;
+    outer.attr('transform', 'translate(155, 155) rotate('+ i%360 +' 0 0)');
+
+    if( (timestamp - start) > 3200 ){
+      start = timestamp;
+      bg.transition()
+        .duration(800)
+        .attr({ 'fill': function(d, i){ return colorScale( Math.random() * 22 + 1 ); } });
+    }
   });
-
 })();
+
 </script>
 </body>
 </html>
