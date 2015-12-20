@@ -25,7 +25,7 @@
     var data = []; //[5, 2, 9, 4, 5, 6, 7];
 
     for (var i = 0; i < 10; i++) {
-      data.push( Math.random() * 7 + 2);
+      data.push( Math.floor(Math.random() * 7) + 2);
     }
 
     var svg = d3.select('.svg');

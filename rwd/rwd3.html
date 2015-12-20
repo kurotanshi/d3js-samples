@@ -25,16 +25,18 @@
     var data = []; //[5, 2, 9, 4, 5, 6, 7];
 
     for (var i = 0; i < 10; i++) {
-      data.push( Math.random() * 7 + 2);
+      data.push( Math.floor(Math.random() * 7) + 2);
     }
 
     var svg = d3.select('.svg');
 
     // 將繪製動作包裝至 function 內
     function rendering() {
+
+      // 將畫布尺寸改成即時取得的寬高
       var margin = 40,
-          width = parseInt(d3.select(".content").style("width")) - margin*2,
-          height = parseInt(d3.select(".content").style("height")) - margin*2;
+          width = parseInt(d3.select(".content").style("width"), 10) - margin*2,
+          height = parseInt(d3.select(".content").style("height"), 10) - margin*2;
 
       svg.html('');
 
