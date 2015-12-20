@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <script type="text/javascript" src="scripts/d3/d3.min.js"></script>
+</head>
+
+<body>
+  <svg width="600" height="400"></svg>
+  <script type="text/javascript">
+  //lack006
+  var _ready = {
+    device: 0,
+    dom: 0
+  };
+  // http://stackoverflow.com/questions/7432815/jquery-wait-for-multiple-complete-events
+
+  function isApp() {
+    return (document.URL.indexOf('file:///android_asset') >= 0);
+  }
+  // http://stackoverflow.com/questions/8068052/phonegap-detect-if-running-on-desktop-browser
+
+  if (isApp()) {
+    document.addEventListener('deviceready', function() {
+      _ready.device = 1;
+      init();
+    }, false);
+  } else {
+    _ready.device = 1;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    _ready.dom = 1;
+    init();
+  }, false);
+  // http://stackoverflow.com/questions/9899372/pure-javascript-equivalent-to-jquerys-ready-how-to-call-a-function-when-the
+
+  function init() {
+    if (!(_ready.device && _ready.dom)) {
+      return;
+    }
+    var canvas = d3.select('svg');
+    canvas.style('border', '1px solid blue');
+
+    // append 10 circles
+    for (var i = 1; i < 10; i++) {
+      canvas.append('circle')
+        .attr('class', 'running')
+        .attr('cx', Math.random() * canvas.attr('width'))
+        .attr('cy', Math.random() * canvas.attr('height'))
+        .attr('r', 30).style("fill", function() { return "hsl(" + 90 + Math.random() * 180 + ", 100%, 50%)";});
+    }
+
+    canvas.selectAll('circle')
+      .on('click', stops);
+
+  }
+
+  window.setInterval(flee, 2000);
+
+  function flee() {
+    var canvas = d3.select('svg');
+    canvas.selectAll('circle.running')
+      .transition()
+      .duration(1800)
+      .attr('cx', function(d, i) {
+        return (Math.random() * canvas.attr('width'));
+      })
+      .attr('cy', function(d, i) {
+        return (Math.random() * canvas.attr('height'));
+      });
+  }
+
+  function stops() {
+    var c = d3.select(this);
+    if (c.attr('class') == 'running') {
+      c.attr('class', 'stop')
+        .style('fill', '#f00');
+    } else {
+      c.attr('class', 'running').style('fill', '#0f0');
+    }
+  }
+  </script>
+</body>
+
+</html>
