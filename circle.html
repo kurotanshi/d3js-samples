@@ -1,93 +1,90 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
   <meta charset="utf-8">
-  <title>D3 Circle</title>
-  <meta property="og:title" content="D3 Circle"/>
-  <meta property="og:image" content="http://kurotanshi.github.io/d3js-samples/og-image.png"/>
-  <meta property="og:url" content="http://kurotanshi.github.io/d3js-samples/circle.html"/>
-  <style>
-    svg{ display: block; width: 500px; height: 500px; }
-  </style>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <script type="text/javascript" src="scripts/d3/d3.min.js"></script>
 </head>
+
 <body>
+  <svg width="600" height="400"></svg>
+  <script type="text/javascript">
+  //lack006
+  var _ready = {
+    device: 0,
+    dom: 0
+  };
+  // http://stackoverflow.com/questions/7432815/jquery-wait-for-multiple-complete-events
 
-<script>
-  var data = [];
-for(var i = 0; i < 16; i++){
-  data.push(Math.floor((Math.random() * 22) + 2));
-  data.push(Math.floor((Math.random() * 5) + 1));
-}
-// 準備 20 組的綠色色碼
-var colorScale = d3.scale.linear()
-          .domain([1, 25])
-          .range(["#E7E879", "#55B36C"]);
+  function isApp() {
+    return (document.URL.indexOf('file:///android_asset') >= 0);
+  }
+  // http://stackoverflow.com/questions/8068052/phonegap-detect-if-running-on-desktop-browser
 
-// 將 data 內的數值轉成 0 ~ 2, 以便 arc 使用
-var arcScale = d3.scale.linear()
-          .domain([0, d3.sum(data)])
-          .range([0, 2]);
+  if (isApp()) {
+    document.addEventListener('deviceready', function() {
+      _ready.device = 1;
+      init();
+    }, false);
+  } else {
+    _ready.device = 1;
+  }
 
-var arc = d3.svg.arc().innerRadius(120).outerRadius(132).cornerRadius(30);
-var svg = d3.select('body').append('svg');
-var curr = 0;
+  document.addEventListener('DOMContentLoaded', function() {
+    _ready.dom = 1;
+    init();
+  }, false);
+  // http://stackoverflow.com/questions/9899372/pure-javascript-equivalent-to-jquerys-ready-how-to-call-a-function-when-the
 
-svg.selectAll('path.bg')
-  .data([1])
-  .enter()
-  .append('path')
-  .attr({
-    'class': 'bg',
-    'd': function(d, i){ return arc({ "startAngle": 0, "endAngle": Math.PI * 2 }); },
-    'transform': 'translate(155, 155)',
-    'fill': function(d, i){ return colorScale(1); }
-  });
+  function init() {
+    if (!(_ready.device && _ready.dom)) {
+      return;
+    }
+    var canvas = d3.select('svg');
+    canvas.style('border', '1px solid blue');
 
-svg.selectAll('path.outer')
-  .data(data)
-  .enter()
-  .append('path')
-  .attr({
-    'class': 'outer',
-    'd': function(d, i){
-      var currend = 0;
+    // append 10 circles
+    for (var i = 1; i < 10; i++) {
+      canvas.append('circle')
+        .attr('class', 'running')
+        .attr('cx', Math.random() * canvas.attr('width'))
+        .attr('cy', Math.random() * canvas.attr('height'))
+        .attr('r', 30).style("fill", function() { return "hsl(" + 90 + Math.random() * 180 + ", 100%, 50%)";});
+    }
 
-      if( i >0 && i < data.length ) curr += data[i];
-      currend = arcScale(curr + data[i+1]) || 2;
+    canvas.selectAll('circle')
+      .on('click', stops);
 
-      // 計算每個 arc 的起點與終點位置
-      return arc({
-        "startAngle": Math.PI * arcScale(curr),
-        "endAngle": Math.PI * currend
+  }
+
+  window.setInterval(flee, 2000);
+
+  function flee() {
+    var canvas = d3.select('svg');
+    canvas.selectAll('circle.running')
+      .transition()
+      .duration(1800)
+      .attr('cx', function(d, i) {
+        return (Math.random() * canvas.attr('width'));
+      })
+      .attr('cy', function(d, i) {
+        return (Math.random() * canvas.attr('height'));
       });
-    },
-    'fill': function(d, i){
-      // 隨機吐一組綠色
-      return (i % 2 === 0) ? 'transparent' : colorScale( Math.floor((Math.random() * 22) + 3) );
+  }
+
+  function stops() {
+    var c = d3.select(this);
+    if (c.attr('class') == 'running') {
+      c.attr('class', 'stop')
+        .style('fill', '#f00');
+    } else {
+      c.attr('class', 'running').style('fill', '#0f0');
     }
-});
-
-
-(function(){
-  var outer = d3.selectAll('.outer');
-  var bg = d3.selectAll('.bg');
-  var i = 0, start = 0;
-
-  d3.timer(function(timestamp){
-    i += Math.random() * 0.8;
-    outer.attr('transform', 'translate(155, 155) rotate('+ i%360 +' 0 0)');
-
-    if( (timestamp - start) > 3200 ){
-      start = timestamp;
-      bg.transition()
-        .duration(800)
-        .attr({ 'fill': function(d, i){ return colorScale( Math.random() * 22 + 1 ); } });
-    }
-  });
-})();
-
-</script>
+  }
+  </script>
 </body>
+
 </html>
