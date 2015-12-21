@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+  div {
+    display: block;
+    width: 100px;
+    height: 35px;
+    margin-bottom: 0.5em;
+    line-height: 35px;
+    font-size: 20px;
+    padding: 8px;
+  }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+  var body = d3.select('body');
+
+  var color1 = '#f00';
+  var color2 = '#0f0';
+  var compute = d3.interpolate(color1, color2);
+
+  body.append('div').style('background-color', compute(0)).text(compute(0));
+  body.append('div').style('background-color', compute(0.1)).text(compute(0.1));
+  body.append('div').style('background-color', compute(0.3)).text(compute(0.3));
+  body.append('div').style('background-color', compute(0.5)).text(compute(0.5));
+  body.append('div').style('background-color', compute(0.7)).text(compute(0.7));
+  body.append('div').style('background-color', compute(0.9)).text(compute(0.9));
+  body.append('div').style('background-color', compute(1)).text(compute(1));
+  </script>
+</body>
+
+</html>

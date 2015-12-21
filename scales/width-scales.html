@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+  div {
+    display: block;
+    font-size: 1.5em;
+    margin-bottom: 1em;
+  }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+  var body = d3.select('body');
+
+  var widthScale = d3.scale.linear()
+                     .domain([0, 12])
+                     .range(["0px", "720px"]);
+
+  for (var i = 0; i <= 12; i++) {
+      body.append('div').text( widthScale(i) );
+  }
+
+  </script>
+</body>
+
+</html>

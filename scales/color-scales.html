@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+  div {
+    float: left;
+    width: 20px;
+    height: 100px;
+    margin-right: 5px;
+  }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+  var body = d3.select('body');
+
+  // colorScale
+  var colorScale = d3.scale.linear()
+    .domain([0, 20])
+    .range(["#f00", "#0f0"]);
+
+
+  for (var i = 0; i < 21; i++) {
+    body.append('div')
+      .style('background-color', colorScale(i));
+  }
+  </script>
+</body>
+
+</html>

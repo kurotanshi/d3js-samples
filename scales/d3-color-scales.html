@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+  .cat{
+    width: 800px;
+    overflow: hidden;
+    margin-bottom: 1em;
+  }
+  .cat > div {
+    float: left;
+    width: 100px;
+    height: 50px;
+    line-height: 50px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: 20px;
+  }
+  </style>
+</head>
+
+<body>
+  <h2>d3.scale.category10()</h2>
+  <div class="cat cat10"></div>
+
+  <h2>d3.scale.category20()</h2>
+  <div class="cat cat20"></div>
+
+  <h2>d3.scale.category20b()</h2>
+  <div class="cat cat20b"></div>
+
+  <h2>d3.scale.category20c()</h2>
+  <div class="cat cat20c"></div>
+
+  <script type="text/javascript">
+    var body = d3.select('body');
+    var cat10 = d3.scale.category10();
+    var cat20 = d3.scale.category20();
+    var cat20b = d3.scale.category20b();
+    var cat20c = d3.scale.category20c();
+
+    for (var i = 0; i < 10; i++) {
+      d3.select('.cat10').append('div').style('background-color', cat10(i)).text(i);
+    };
+
+    for (var i = 0; i < 20; i++) {
+      d3.select('.cat20').append('div').style('background-color', cat20(i)).text(i);
+      d3.select('.cat20b').append('div').style('background-color', cat20b(i)).text(i);
+      d3.select('.cat20c').append('div').style('background-color', cat20c(i)).text(i);
+    };
+
+  </script>
+</body>
+
+</html>

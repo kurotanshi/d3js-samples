@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+  div {
+    display: block;
+    height: 35px;
+    margin-bottom: 0.5em;
+    line-height: 35px;
+    font-size: 20px;
+    padding: 8px;
+  }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+  var body = d3.select('body');
+
+  var a = "50px";
+  var b = "1000px";
+  var compute = d3.interpolate(a, b);
+
+  body.append('div').text('compute(0): ' + compute(0));
+  body.append('div').text('compute(0.1): ' + compute(0.1));
+  body.append('div').text('compute(0.3): ' + compute(0.3));
+  body.append('div').text('compute(0.5): ' + compute(0.5));
+  body.append('div').text('compute(0.7): ' + compute(0.7));
+  body.append('div').text('compute(0.9): ' + compute(0.9));
+  body.append('div').text('compute(1): ' + compute(1));
+  </script>
+</body>
+
+</html>
