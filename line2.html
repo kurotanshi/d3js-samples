@@ -2,13 +2,13 @@
 <html>
 
 <head>
-  <title>Line Chart</title>
+  <title>Line Chart with interpolate</title>
   <script src="../scripts/d3/d3.min.js"></script>
   <style type="text/css">
   html,
   body {
     display: block;
-    width: 100%;
+    width: 1000px;
     height: 100%;
     padding: 0;
     margin: 0;
@@ -49,6 +49,11 @@
     overflow: hidden;
   }
 
+  .btn {
+    font-size: 1.2em;
+    margin: 5px;
+  }
+
   .data {
     margin: 10px 10px 0;
     font-size: 1.2em;
@@ -62,7 +67,23 @@
     <svg class="svg"></svg>
   </div>
   <script type="text/javascript">
-  var data = [[]];
+  var data = [
+    []
+  ];
+  var interpolates = ['linear', 'linear-closed', 'step', 'step-before', 'step-after', 'basis', 'basis-open', 'basis-closed',
+    'bundle', 'cardinal', 'cardinal-open', 'cardinal-closed', 'monotone'
+  ];
+
+  d3.select('body')
+    .selectAll('.btn')
+    .data(interpolates)
+    .enter()
+    .append('button')
+    .classed('btn', true)
+    .text(function(d) {
+      return d;
+    });
+
   for (var i = 0; i < 15; i++) {
     data[0].push([2000 + i, Math.floor(Math.random() * 42500) + 7500]);
   };
@@ -165,6 +186,27 @@
   svg.select('.x.axis').selectAll('.tick line').attr('transform', 'translate(' + width * 0.05 + ', 0)');
   svg.selectAll('.xline').attr('transform', 'translate(' + width * 0.05 + ', 0)');
   svg.selectAll('.dot').attr('transform', 'translate(' + width * 0.05 + ', 0)');
+
+  d3.selectAll('.btn').on('click', function(e) {
+    var interpolate = d3.select(this).text();
+
+    var linePath = d3.svg.line()
+      .x(function(d) {
+        return xScale(d[0]) + margin;
+      })
+      .y(function(d) {
+        return yScale2(d[1]) + margin;
+      })
+      .interpolate(interpolate);
+
+    svg.selectAll("path.xline")
+      .transition()
+      .duration(1000)
+      .ease("linear")
+      .attr({
+        'd': function(d, i) { return linePath(d); }
+      });
+  });
   </script>
 </body>
 

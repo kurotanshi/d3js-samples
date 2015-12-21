@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Chord</title>
+  <style type="text/css">
+  .outerPath {
+    stroke: black;
+  }
+
+  .outerText {
+    text-anchor: middle;
+    font-size: 16;
+  }
+
+  .innerPath {
+    stroke: black;
+  }
+  </style>
+  <script type="text/javascript" src="scripts/d3/d3.min.js"></script>
+</head>
+
+<body>
+  <script>
+  var width = 400;
+  var height = 400;
+
+  var svg = d3.select("body")
+    .append("svg")
+    .attr({
+      "width": width,
+      "height": height
+    });
+
+  // dataset
+  var area = ["台灣", "古巴", "荷蘭", "加拿大", "波多黎各", "義大利"];
+
+  // 對戰得分
+  var scores = [
+    [0, 4, 4, 8, 4, 7],
+    [1, 0, 6, 1, 8, 2],
+    [7, 5, 0, 1, 11, 16],
+    [9, 5, 3, 0, 2, 4],
+    [7, 7, 7, 0, 0, 7],
+    [1, 1, 1, 0, 1, 0]
+  ];
+
+  // d3.layout.chord()
+  var chord = d3.layout.chord()
+    .padding(0.033) // 間距
+    .matrix(scores);
+
+  var gChord = svg.append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+  // 節點容器
+  var gOuter = gChord.append("g");
+
+  // 內弦容器
+  var gInner = gChord.append("g");
+
+  // 颜色比例尺
+  var color20 = d3.scale.category10();
+
+  // 內圈與外圈
+  var innerRadius = width / 2 * 0.8;
+  var outerRadius = innerRadius * 1.1;
+
+  // 外圈 d3.svg.arc()
+  var arcOuter = d3.svg.arc()
+    .innerRadius(innerRadius)
+    .outerRadius(outerRadius);
+
+  gOuter.selectAll(".outerPath")
+    .data(chord.groups())
+    .enter()
+    .append("path")
+    .attr({
+      "d": arcOuter,
+      "class": "outerPath"
+    })
+    .style("fill", function(d) {
+      return color20(d.index);
+    });
+
+  // 文字
+  gOuter.selectAll(".outerText")
+    .data(chord.groups())
+    .enter()
+    .append("text")
+    .each(function(d, i) {
+      d.angle = (d.startAngle + d.endAngle) / 2;
+      d.name = area[i];
+    })
+    .attr("class", "outerText")
+    .attr("dy", ".35em")
+    .attr("transform", function(d) {
+      var result = "rotate(" + (d.angle * 180 / Math.PI) + ")";
+      result += "translate(0," + -1.0 * (outerRadius + 10) + ")";
+
+      if (d.angle > Math.PI * 3 / 4 && d.angle < Math.PI * 5 / 4)
+        result += "rotate(180)";
+
+      return result;
+    })
+    .text(function(d) {
+      return d.name;
+    });
+
+
+  // 內圈 d3.svg.chord()
+  var arcInner = d3.svg.chord()
+    .radius(innerRadius);
+
+  gInner.selectAll(".innerPath")
+    .data(chord.chords())
+    .enter()
+    .append("path")
+    .attr({
+      "class": "innerPath",
+      "d": arcInner
+    })
+    .style("fill", function(d) {
+      return color20(d.source.index);
+    });
+
+  // 漸變動畫
+  function fade(opacity) {
+    return function(g, i) {
+      gInner.selectAll(".innerPath")
+        .filter(function(d) {
+          return d.source.index != i && d.target.index != i;
+        })
+        .transition()
+        .style("opacity", opacity);
+    };
+  }
+
+  gOuter.selectAll(".outerPath")
+    .on("mouseover", fade(0))
+    .on("mouseout", fade(1));
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>D3 Data Driven</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+  .wrap {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1em;
+  }
+
+  .bar {
+    background-color: navy;
+    width: 2em;
+    height: auto;
+    margin-right: 5px;
+    float: left;
+    position: relative;
+    color: #fff;
+    text-align: center;
+    padding-top: 5px;
+  }
+
+  .data {
+    margin: 10px;
+    font-size: 1.2em;
+  }
+
+  button {
+    font-size: 1.5em;
+    float: left;
+    margin-right: 10px;
+  }
+  </style>
+</head>
+
+<body>
+  <div class="data"></div>
+  <script type="text/javascript">
+  var data = [1, 2, 3, 4, 5];
+  var height = 250,
+    width = 300;
+
+  // body 與 容器
+  var body = d3.select('body');
+  var wrap = body.append('div')
+    .style({
+      'height': height + 'px'
+    })
+    .classed('wrap', true);
+
+  // render, & update
+  var render = function() {
+    d3.select('.data').text('data: [' + data.join(' ,') + ']');
+    wrap.selectAll('.bar')
+      .data(data)
+      .enter()
+      .append('div')
+      .classed('bar', true)
+      .text(function(d) {
+        return d;
+      })
+      .style({
+        'height': function(d) {
+          return d * 25 + 'px';
+        },
+        'top': function(d) {
+          return (height - d * 25) + 'px';
+        }
+      });
+  };
+
+  // remove
+  var remove = function() {
+    d3.select('.data').text('data: [' + data.join(' ,') + ']');
+    wrap.selectAll('.bar')
+      .data(data)
+      .text(function(d) {
+        return d;
+      })
+      .style({
+        'height': function(d) {
+          return d * 25 + 'px';
+        },
+        'top': function(d) {
+          return (height - d * 25) + 'px';
+        }
+      })
+      .exit()
+      .remove();
+  };
+
+  // 繪製原始資料
+  render();
+
+  // 兩顆按鈕
+  body.append('button')
+    .classed('add', true)
+    .text('add');
+
+  body.append('button')
+    .classed('remove', true)
+    .text('remove');
+
+  d3.select('.add').on('click', function() {
+    data.push(Math.floor(Math.random() * 10 + 1));
+    render();
+  });
+
+  d3.select('.remove').on('click', function() {
+    data.pop();
+    remove();
+  });
+  </script>
+</body>
+
+</html>
