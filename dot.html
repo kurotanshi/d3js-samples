@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+    html, body{ display: block; width: 100%; height: 100%; padding: 0; margin: 0; padding: 10px; }
+    .axis path, .axis line { fill: none; stroke: #999; }
+    .y.axis .tick:first-child line{ stroke: #999; }
+    .tick line{ stroke: #ddd; }
+    .axis text { fill: #555; }
+    .line { fill: none; stroke: #ef0d0c; stroke-width: 1.5px; }
+
+    .content{
+      display: block; width: 100%; height: 100%;
+      min-width: 300px; max-width: 960px; max-height: 500px; overflow: hidden;
+    }
+    .data{ margin: 10px 10px 0; font-size: 1.2em;  }
+  </style>
+</head>
+<body>
+  <div class="data"></div>
+  <div class="content">
+    <svg class="svg"></svg>
+  </div>
+
+  <script type="text/javascript">
+    var data = [];
+
+    for (var i = 0; i < 12; i++) {
+      data.push( Math.floor(Math.random() * 85) + 10);
+    }
+
+    d3.select('.data')
+      .text('data: [' + data.join(', ') + ']' );
+
+    var svg = d3.select('.svg');
+    var margin = 40,
+        width = 960 - margin*2,
+        height = 500 - margin*2;
+
+    svg.attr({
+      "width": width + margin,
+      "height": height + margin*2,
+      "transform": "translate(" + margin + "," + margin + ")"
+    });
+
+    var xScale = d3.time.scale()
+        .domain([new Date('2015/01/01'), new Date('2016/01/01')])
+        .range([0, width]);
+
+    var yScale = d3.scale.linear()
+        .domain([0, 100])
+        .range([0, height]);
+
+    var yScale2 = d3.scale.linear()
+        .domain([0, 100])
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom")
+        .outerTickSize(0)
+        .innerTickSize(-height)
+        .tickPadding(10)
+        .ticks(d3.time.months)
+        .tickFormat(function(v){
+          return v.getMonth()+1 + '月';
+        });
+
+    var yAxis = d3.svg.axis()
+          .scale(yScale2)
+          .innerTickSize(-width)
+          .outerTickSize(0)
+          .tickPadding(10)
+          .orient("left");
+
+  svg.append("g")
+      .attr({
+        "class": "x axis",
+        "transform": "translate("+ margin +"," + (height+margin) + ")",
+      })
+      .call(xAxis);
+
+  svg.append("g")
+      .attr({
+        "class": "y axis",
+        "transform": "translate("+ margin +", "+ margin +")",
+      })
+      .call(yAxis);
+
+    svg.selectAll('.dot')
+       .data( data )
+       .enter()
+       .append('g')
+       .classed('dot', true)
+        .append('circle')
+        .attr({
+          'cx': function(d, i){ return xScale(new Date('2015/'+ (i+1) +'/01')) + margin; },
+          'cy': function(d, i){ return yScale2(d) + margin; },
+          'r': 9,
+          'fill': '#555'
+        });
+
+  svg.select('.x.axis').selectAll('.tick text').attr("dx", width*0.05);
+  svg.select('.x.axis').selectAll('.tick line').attr('transform', 'translate('+ width*0.05 +', 0)');
+  svg.selectAll('.dot').attr('transform', 'translate('+ width*0.05 +', 0)');
+
+  </script>
+
+</body>
+</html>
