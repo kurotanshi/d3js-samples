@@ -7,8 +7,8 @@
   <style type="text/css">
   svg {
     display: block;
-    width: 550px;
-    height: 350px;
+    width: 650px;
+    height: 550px;
   }
 
   circle.dot {
@@ -26,8 +26,11 @@
     stroke-width: 2px;
     shape-rendering: crispEdges;
   }
-  .data{
-    display: block; width: 500px; margin: 10px;
+
+  .data {
+    display: block;
+    width: 500px;
+    margin: 10px;
   }
   </style>
   <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
@@ -43,6 +46,7 @@
       d3.select('.data').text('data: ' + JSON.stringify(data));
 
       var svg = d3.select('body').append('svg');
+
       // 取整數
       var xMax = d3.max(data, function(d) {
           return Math.floor(+d.x);
@@ -54,11 +58,11 @@
       // scale + 5 作為 buffer
       var yScale = d3.scale.linear()
         .domain([yMax + 5, 0])
-        .range([0, 300]);
+        .range([0, 450]);
 
       var xScale = d3.scale.linear()
         .domain([0, xMax + 5])
-        .range([0, 500]);
+        .range([0, 600]);
 
       var xAxis = d3.svg.axis()
         .scale(xScale)
@@ -81,7 +85,7 @@
       g.append("g")
         .attr("class", "x axis")
         // 將座標軸移到底部
-        .attr("transform", "translate(0, 300)")
+        .attr("transform", "translate(0, 450)")
         .call(xAxis);
 
       g.selectAll(".dot")
@@ -96,7 +100,7 @@
             return yScale(d.y);
           },
           "r": function(d) {
-            return d.value;
+            return d.value * 1.5;
           },
           'fill': function(d, i) {
             return colors(i);
@@ -105,6 +109,10 @@
             return 'x:' + d.x + ', ' + 'y:' + d.y;
           }
         });
+
+      g.selectAll(".dot").on('click', function(d) {
+        alert('x: ' + d.x + ' ,y: ' + d.y + ' , value: ' + d.value);
+      });
     });
   </script>
 </body>

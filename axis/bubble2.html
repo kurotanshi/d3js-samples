@@ -7,8 +7,8 @@
   <style type="text/css">
   svg {
     display: block;
-    width: 550px;
-    height: 350px;
+    width: 650px;
+    height: 550px;
   }
 
   circle.dot {
@@ -43,8 +43,11 @@
   d3.json("http://www.json-generator.com/api/json/get/chykKqMlvm?indent=2",
     function(error, data) {
 
+      d3.select('.data').text('data: ' + JSON.stringify(data));
+
       var svg = d3.select('body').append('svg');
 
+      // 取整數
       var xMax = d3.max(data, function(d) {
           return Math.floor(+d.x);
         }),
@@ -52,14 +55,14 @@
           return Math.floor(+d.y);
         });
 
-
+      // scale + 5 作為 buffer
       var yScale = d3.scale.linear()
         .domain([yMax + 5, 0])
-        .range([0, 300]);
+        .range([0, 450]);
 
       var xScale = d3.scale.linear()
         .domain([0, xMax + 5])
-        .range([0, 500]);
+        .range([0, 600]);
 
       var xAxis = d3.svg.axis()
         .scale(xScale)
@@ -69,7 +72,7 @@
         .scale(yScale)
         .orient("left");
 
-      var colors = d3.scale.category20();
+      var colors = d3.scale.category20c();
 
       // 增加間距
       var g = svg.append("g")
@@ -82,7 +85,7 @@
       g.append("g")
         .attr("class", "x axis")
         // 將座標軸移到底部
-        .attr("transform", "translate(0, 300)")
+        .attr("transform", "translate(0, 450)")
         .call(xAxis);
 
       g.selectAll(".dot")
@@ -94,7 +97,7 @@
           "cx": xScale(0), //function(d) { return xScale(d.x); },
           "cy": yScale(0), //function(d) { return yScale(d.y); },
           "r": function(d) {
-            return d.value;
+            return 0; //d.value * 1.5;
           },
           'fill': function(d, i) {
             return colors(i);
@@ -107,6 +110,9 @@
           return i * 100;
         })
         .attr({
+          "r": function(d) {
+            return d.value * 1.5;
+          },
           "cx": function(d) {
             return xScale(d.x);
           },

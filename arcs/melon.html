@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Melon</title>
+  <style type="text/css">
+  svg {
+    display: block;
+    width: 350px;
+    height: 350px;
+  }
+
+  .outer {
+    stroke: #518D4F;
+    stroke-width: 3px;
+    fill: #A7CD6B;
+  }
+
+  .inner {
+    stroke: #F0B340;
+    stroke-width: 3px;
+    fill: #F5B578;
+  }
+  </style>
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+</head>
+
+<body>
+  <script>
+  // 設定角度
+  var myArc1 = {
+    "startAngle": Math.PI * 0.5,
+    "endAngle": Math.PI * 1.5
+  };
+
+  var arc = d3.svg.arc()
+    .innerRadius(140)
+    .outerRadius(150);
+
+  var arc2 = d3.svg.arc()
+    .innerRadius(10)
+    .outerRadius(139);
+
+  var svg = d3.select('body').append('svg');
+
+  // make an arc - outer
+  svg.append('path')
+    .attr({
+      'class': 'outer',
+      'd': arc(myArc1),
+      'transform': 'translate(175, 175)'
+    });
+
+  // make an arc - inner
+  svg.append('path')
+    .attr({
+      'class': 'inner',
+      'd': arc2(myArc1),
+      'transform': 'translate(175, 175)'
+    });
+  </script>
+</body>
+
+</html>

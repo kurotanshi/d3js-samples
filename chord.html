@@ -54,7 +54,6 @@
   var gChord = svg.append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-
   // 節點容器
   var gOuter = gChord.append("g");
 
@@ -73,6 +72,7 @@
     .innerRadius(innerRadius)
     .outerRadius(outerRadius);
 
+  // 透過 chord.groups() 生成的結構去畫外圈
   gOuter.selectAll(".outerPath")
     .data(chord.groups())
     .enter()
@@ -111,8 +111,7 @@
 
 
   // 內圈 d3.svg.chord()
-  var arcInner = d3.svg.chord()
-    .radius(innerRadius);
+  var arcInner = d3.svg.chord().radius(innerRadius);
 
   gInner.selectAll(".innerPath")
     .data(chord.chords())

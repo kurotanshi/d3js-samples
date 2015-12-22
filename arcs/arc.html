@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>d3.arc</title>
+  <style type="text/css">
+  svg {
+    display: block;
+    width: 350px;
+    height: 350px;
+  }
+
+  path {
+    stroke: #000;
+    stroke-width: 1px;
+  }
+
+  .non-filled {
+    fill: none;
+  }
+
+  .filled-yellow {
+    fill: yellow;
+  }
+
+  .filled-red {
+    fill: red;
+  }
+  </style>
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+</head>
+
+<body>
+  <script>
+  var myArc1 = {
+    "startAngle": 0,
+    "endAngle": Math.PI
+  };
+
+  var myArc2 = {
+    "startAngle": Math.PI,
+    "endAngle": Math.PI * 1.5
+  };
+
+  var myArc3 = {
+    "startAngle": Math.PI * 1.5,
+    "endAngle": Math.PI * 2
+  };
+
+  var arc = d3.svg.arc()
+    .innerRadius(50)
+    .outerRadius(150);
+
+  var svg = d3.select('body').append('svg');
+
+  // make an arc1
+  svg.append('path')
+    .attr({
+      'class': 'filled-yellow',
+      'd': arc(myArc1),
+      'transform': 'translate(175, 175)'
+    });
+
+  // make an arc2
+  svg.append('path')
+    .attr({
+      'class': 'non-filled',
+      'd': arc(myArc2),
+      'transform': 'translate(175, 175)'
+    });
+
+  // make an arc3
+  svg.append('path')
+    .attr({
+      'class': 'filled-red',
+      'd': arc(myArc3),
+      'transform': 'translate(175, 175)'
+    });
+  </script>
+</body>
+
+</html>
