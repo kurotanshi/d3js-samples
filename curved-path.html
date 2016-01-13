@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>key function</title>
+  <script type="text/javascript" src="./scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+    svg{ margin-top: 2em; display: block; width: 300px; height: 300px; }
+
+    .axis text { color: #888; font: 12px sans-serif; }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #888;
+      stroke-width: 2px;
+      shape-rendering: crispEdges;
+    }
+
+    circle{
+      fill: #333;
+    }
+
+  </style>
+</head>
+
+<body>
+
+
+  <script>
+  var data = [0, 1, 2, 3, 4, 5];
+  var svg = d3.select('body').append('svg');
+  var start = 0;
+
+  var yScale = d3.scale.linear()
+    .domain(d3.extent(data))
+    .range([200, 0]);
+
+  var xScale = d3.scale.linear()
+    .domain(d3.extent(data))
+    .range([0, 200]);
+
+  var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .outerTickSize(0)
+    .innerTickSize(-200)
+    .orient("bottom")
+    .ticks(5)
+    .tickFormat(function(d){ return ''; });
+
+  var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .outerTickSize(0)
+    .innerTickSize(-200)
+    .orient("left")
+    .ticks(5)
+    .tickFormat(function(d){ return ''; });
+
+  // 增加間距
+  var g = svg.append("g")
+    .attr("transform", "translate(10, 10)");
+
+  g.append("g")
+    .attr("class", "y axis")
+    .attr("transform", "translate(10, 0)")
+    .call(yAxis);
+
+  g.append("g")
+    .attr("class", "x axis")
+    // 將座標軸移到底部
+    .attr("transform", "translate(10, 200)")
+    .call(xAxis);
+
+    var circle = g.append('circle');
+
+    circle.attr({
+      'r': 10,
+      'cx': xScale(0),
+      'cy': yScale(0),
+      "transform": "translate(10, 0)"
+    });
+
+    var count = 0, direction = 'right';
+
+    d3.timer(function(timestamp) {
+      if ((timestamp - start) > 30) {
+        start = timestamp;
+
+        if( count >= 5.01 ){ direction = 'left'; }
+        else if( count <= 0 ){ direction = 'right'; }
+
+        if( direction === 'right' ){
+          count += 0.1;
+        }else{
+          count -= 0.1;
+        }
+
+        circle.transition()
+          .duration(10)
+          .attr({
+            'cx': xScale(count),
+            'cy': yScale(count),
+          });
+
+      }
+
+
+    });
+
+
+  </script>
+</body>
+</html>
