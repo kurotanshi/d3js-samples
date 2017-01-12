@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+
+  <style type="text/css">
+    body{
+      padding: 1em;
+    }
+
+    .row{
+      display: block;
+      margin-bottom: 5px;
+      background-color: #e7e7e7;
+    }
+
+    .row .name{
+      height: 25px;
+      line-height: 25px;
+      margin-bottom: 2px;
+    }
+
+    .row .score{
+      background-color: red;
+      text-align: center;
+      color: #fff;
+      padding: 2px 0;
+    }
+
+  </style>
+
+</head>
+<body>
+
+  <!-- HTML 結構
+    <div class="row">
+      <div class="name">Kuro</div>
+      <div class="score">100</div>
+    </div>
+  -->
+
+  <!--
+    練習 #7:
+      假資料: https://goo.gl/yoQpDM
+      試著透過 假資料產生器 生成的資料， 為每一筆畫出橫向的長條圖，
+      如果分數 > 60，分數條設定深綠色 如果 < 60 ，分數條設定紅色。
+  -->
+
+  <script type="text/javascript">
+  d3.json('http://www.json-generator.com/api/json/get/cwbRBclMHS?indent=2', function(err, data){
+
+    var row = d3.select('body')
+      .selectAll('.row')
+      .data( data )
+      .enter()
+      .append('div')
+        .classed('row', true);
+
+      row.append('div')
+        .classed('name', true)
+        .text(function(d, i){ return d.name; });
+
+      row.append('div')
+        .classed('score', true)
+        .text(function(d, i){ return d.score; });
+  });
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+</head>
+<body>
+
+
+  <!--
+    練習 #10: 如下
+
+    加分題： 若對應 800 ~ 100， d3Scale(4) 又會是多少？
+            code 如何修改？
+  -->
+
+  <script type="text/javascript">
+
+   var d3Scale = d3.scale.linear()      // linear
+                  .domain([1, 9])      // 傳入範圍
+                  .range([10, 800]);   // 輸出範圍
+
+  console.log( d3Scale(4) );       // 多少？
+
+
+  </script>
+
+</body>
+</html>
