@@ -58,9 +58,12 @@
 
 <body>
   <div class="data"></div>
+
   <div class="content">
     <svg class="svg"></svg>
   </div>
+
+
   <script type="text/javascript">
 
   // 原始資料, 隨機插入 12 組數字
@@ -75,6 +78,7 @@
 
   // 設定 svg 畫布及邊界
   var svg = d3.select('.svg');
+
   var margin = 40,
     width = 960 - margin * 2,
     height = 500 - margin * 2;
@@ -87,7 +91,7 @@
 
   // x 軸比例尺，採 time.scale, 用來表示時間
   var xScale = d3.time.scale()
-    .domain([new Date('2015/01/01'), new Date('2016/01/01')])
+    .domain([new Date('2016/01/01'), new Date('2017/01/01')])
     .range([0, width]);
 
   // y 軸比例尺
@@ -140,18 +144,18 @@
     .data(data)
     .enter()
     .append('g')
-    .classed('dot', true)
-    .append('circle')
-    .attr({
-      'cx': function(d, i) {
-        return xScale(new Date('2015/' + (i + 1) + '/01')) + margin;
-      },
-      'cy': function(d, i) {
-        return yScale2(d) + margin;
-      },
-      'r': 9,
-      'fill': '#555'
-    });
+      .classed('dot', true)
+      .append('circle')
+        .attr({
+          'cx': function(d, i) {
+            return xScale(new Date('2016/' + (i + 1) + '/01')) + margin;
+          },
+          'cy': function(d, i) {
+            return yScale2(d) + margin;
+          },
+          'r': 10,
+          'fill': '#555'
+        });
 
   svg.select('.x.axis').selectAll('.tick text').attr("dx", width * 0.05);
   svg.select('.x.axis').selectAll('.tick line').attr('transform', 'translate(' + width * 0.05 + ', 0)');

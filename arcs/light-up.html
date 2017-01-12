@@ -18,10 +18,12 @@
 
   <script>
   var data = [];
+
   for (var i = 0; i < 16; i++) {
     data.push(Math.floor((Math.random() * 22) + 2));
     data.push(Math.floor((Math.random() * 5) + 1));
   }
+
   // 準備 20 組的綠色色碼
   var colorScale = d3.scale.linear()
     .domain([1, 25])
