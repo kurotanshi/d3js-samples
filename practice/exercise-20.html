@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+    #tooltip{
+      display: block; position: absolute; z-index: 1;
+      padding: 1em; background-color: #eee;
+    }
+    .hidden{ display: none; }
+  </style>
+</head>
+<body>
+
+  <div id="tooltip">
+    <div class="name"></div>
+    <div class="value"></div>
+  </div>
+
+  <!--
+    練習 #20:
+
+    參考 pie2.html 做出第九屆 (2016) 立法院委員席次分布圓餅圖
+    * 民主進步黨 (68)
+    * 中國國民黨 (35)
+    * 時代力量 (5)
+    * 親民黨 (3)
+    * 無黨團結聯盟 (1)
+    * 無黨籍 (1)
+  -->
+
+  <script type="text/javascript">
+
+  // 建立資料
+  var data = [{
+    name: '民主進步黨',
+    seats: 68,
+    color: '#8FC31F'
+  },
+  {
+    name: '中國國民黨',
+    seats: 35,
+    color: '#000099'
+  },
+  {
+    name: '時代力量',
+    seats: 5,
+    color: '#FBBE01'
+  }, {
+    name: '親民黨',
+    seats: 3,
+    color: '#FE6407'
+  }, {
+    name: '無黨團結聯盟',
+    seats: 1,
+    color: '#C20F51'
+  }, {
+    name: '無黨籍',
+    seats: 1,
+    color: '#C7C7C7'
+  }];
+
+  var colors = data.map(function(d){ return d.color; });
+  var partys = data.map(function(d){ return d.name; });
+
+  // 設定圖形長寬, 半徑
+  var width = 450,
+    height = 450,
+    radius = Math.min(width, height) / 2;
+
+  var color2 = d3.scale.ordinal().domain(partys).range(colors);
+
+  // layout.pie()
+  var pie = d3.layout.pie()
+              .value(function(d) {return d.seats; });
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Pie</title>
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <script type="text/javascript" src="//code.jquery.com/jquery-3.1.1.min.js"></script>
+  <style type="text/css">
+    #tooltip{
+      display: block; position: absolute; z-index: 1;
+      padding: 1em; background-color: #eee;
+    }
+    .hidden{ display: none; }
+  </style>
+</head>
+<body>
+
+
+  <div id="tooltip">
+    <div class="name"></div>
+    <div class="value"></div>
+  </div>
+
+
+  <script type="text/javascript">
+  var dataFilter = function(data, filter){
+    //過濾部分資料
+    var newData = [];
+
+    $.each(data, function(i,d){
+      if (d.Year == filter){
+        newData.push(d);
+      }
+    });
+
+    return newData
+  };
+
+  d3.json('./pieData.json', function(res){
+
+    // 設定圖形長寬, 半徑
+    var width = 300,
+      height = 300,
+      radius = Math.min(width, height) / 2;
+
+    var outerRadius = height / 2 ,
+        innerRadius = height / 4; // 弧形的位置
+
+    // 透過 d3.scale.category20() 取得 20 種顏色集合
+    var color = d3.scale.category20();
+
+    // 建立 d3.layout pie 物件 layout.pie()
+    var pie = d3.layout.pie()
+      .sort(null)
+      .value(function(d) {return d.Amount; });
+
+    // 設定內圈 & 外圈半徑弧度, 試試修改內圈數值 :p
+    var arc = d3.svg.arc()
+      .innerRadius(innerRadius)
+      .outerRadius(radius - 30);
+
+    // 產生 svg 元素
+    var svg = d3.select("body")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // g for group, Enter.
+    var g = svg.selectAll("g path")
+      .data(pie(dataFilter(res, '102'))) // 將資料放入 pie
+      .enter()
+      .append("g")
+      .attr('class', 'arc') //準備好Class
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    // Update - path
+    g.append("path")
+      .attr("fill", function(d, i) {
+        return color(i);
+      })
+      .attr("d", arc);
+
+    // Update - text
+    g.append("text")
+      .attr("transform", function(d) {
+        return "translate(" + arc.centroid(d) + ")";
+      })
+      .attr("text-anchor", "middle")
+      .attr("dy", ".35em")
+      .text(function(d) {
+        return d.value + '%';
+      });
+
+    // 滑鼠事件
+    svg.selectAll('.arc').on('mouseover', function(d){
+      mousePos = d3.mouse(this); // 取得滑鼠座標
+      var xPos = mousePos[0] + outerRadius; // 修正滑鼠座標
+      var yPos = mousePos[1] + outerRadius; // 修正滑鼠座標
+
+      d3.select('#tooltip') // 將 Tooltip 補上資料
+        .style({
+          'left': xPos + 'px', // 加上位置
+          'top': yPos + 'px'
+        }).classed('hidden', false);
+
+      d3.select('#tooltip .name').html(d.data.Item) // 插入名稱
+      d3.select('#tooltip .value').html('回收率: ' + d.data.Amount + '%')
+
+    }).on('mouseout', function(d){
+      d3.select('#tooltip').classed('hidden', true) // 切換顯示及隱藏
+    });
+
+
+  });
+  </script>
+</body>
+
+</html>
