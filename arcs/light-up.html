@@ -62,10 +62,14 @@
     .append('path')
     .attr({
       'class': 'outer',
+      'transform': 'translate(155, 155)',
       'd': function(d, i) {
         var currend = 0;
 
-        if (i > 0 && i < data.length) curr += data[i];
+        if (i > 0 && i < data.length) {
+          curr += data[i];
+        }
+
         currend = arcScale(curr + data[i + 1]) || 2;
 
         // 計算每個 arc 的起點與終點位置
@@ -73,6 +77,7 @@
           "startAngle": Math.PI * arcScale(curr),
           "endAngle": Math.PI * currend
         });
+
       },
       'fill': function(d, i) {
         // 隨機吐一組綠色
@@ -91,10 +96,10 @@
       i += Math.random() * 0.8;
       outer.attr('transform', 'translate(155, 155) rotate(' + i % 360 + ' 0 0)');
 
-      if ((timestamp - start) > 3200) {
+      if ((timestamp - start) > 3000) {
         start = timestamp;
         bg.transition()
-          .duration(800)
+          .duration(300)
           .attr({
             'fill': function(d, i) {
               return colorScale(Math.random() * 22 + 1);
