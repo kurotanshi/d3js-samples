@@ -63,6 +63,11 @@
 
   var colors = data.map(function(d){ return d.color; });
   var partys = data.map(function(d){ return d.name; });
+  var votes  = data.map(function(d){ return d.seats; });
+  var total = 0;
+  votes.forEach(function(d){
+    total += d;
+  });
 
   // 設定圖形長寬, 半徑
   var width = 400,
@@ -131,8 +136,12 @@
           'top': yPos + 'px'
         }).classed('hidden', false);
 
-      d3.select('#tooltip .name').html(d.data.name) // 插入名稱
-      d3.select('#tooltip .value').html('席次: ' + d.value)
+      // 插入名稱
+      d3.select('#tooltip .name').html(d.data.name);
+
+      // 插入席次與百分比。
+      // d3.format(".2%") 會自動轉換百分比至小數第二位
+      d3.select('#tooltip .value').html('席次: ' + d.value + '<br>席次百分比: ' + d3.format(".2%")(d.value/total) );
 
     }).on('mouseout', function(d){
       d3.select('#tooltip').classed('hidden', true) // 切換顯示及隱藏
