@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+
+  <style type="text/css">
+  html,
+  body {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #999;
+  }
+
+  .y.axis .tick:first-child line {
+    stroke: #999;
+  }
+
+  .tick line {
+    stroke: #ddd;
+  }
+
+  .axis text {
+    fill: #555;
+  }
+
+  .line {
+    fill: none;
+    stroke: #ef0d0c;
+    stroke-width: 1.5px;
+  }
+
+  .content {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-width: 300px;
+    max-width: 960px;
+    max-height: 500px;
+    overflow: hidden;
+  }
+
+  .data {
+    margin: 10px 10px 0;
+    font-size: 1.2em;
+  }
+  </style>
+
+</head>
+<body>
+
+
+
+  <!--
+    練習 #18:
+      將練習 #15 的圓點圖，用 d3.svg.line( ) 連接起來，繪製成折線圖的樣子。
+      加分題：加入 interpolate 變形模式
+  -->
+
+  <div class="data"></div>
+
+  <div class="content">
+    <svg class="svg"></svg>
+  </div>
+
+
+  <script type="text/javascript">
+
+  // 原始資料, 隨機插入 12 組數字
+  var data = [];
+  for (var i = 0; i < 12; i++) {
+    data.push(Math.floor(Math.random() * 85) + 10);
+  }
+
+  // 顯示數值
+  d3.select('.data')
+    .text('data: [' + data.join(', ') + ']');
+
+  // 設定 svg 畫布及邊界
+  var svg = d3.select('.svg');
+
+  var margin = 40,
+    width = 960 - margin * 2,
+    height = 500 - margin * 2;
+
+  svg.attr({
+    "width": width + margin,
+    "height": height + margin * 2,
+    "transform": "translate(" + margin + "," + margin + ")"
+  });
+
+  // x 軸比例尺，採 time.scale, 用來表示時間
+  var xScale = d3.time.scale()
+    .domain([new Date('2016/01/01'), new Date('2017/01/01')])
+    .range([0, width]);
+
+  // y 軸比例尺
+  var yScale = d3.scale.linear()
+    .domain([0, 100])
+    .range([0, height]);
+
+  // y 軸比例尺
+  var yScale2 = d3.scale.linear()
+    .domain([0, 100])
+    .range([height, 0]);
+
+  // x 軸
+  var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom")   // 刻度位置
+    .outerTickSize(0)
+    .innerTickSize(-height)     // 刻度長度，這裡設定往內長
+    .tickPadding(10)            // 刻度間距
+    .ticks(d3.time.months)      // 刻度數量
+    .tickFormat(function(v) {
+      return v.getMonth() + 1 + '月';    // 以月份表示
+    });
+
+  var yAxis = d3.svg.axis()
+    .scale(yScale2)
+    .innerTickSize(-width)    // 刻度長度，這裡設定往內長
+    .outerTickSize(0)
+    .tickPadding(10)          // 刻度間距
+    .orient("left");          // 刻度位置
+
+  // 加入 x 軸
+  svg.append("g")
+    .attr({
+      "class": "x axis",
+      "transform": "translate(" + margin + "," + (height + margin) + ")",
+    })
+    .call(xAxis);
+
+  // 加入 y 軸
+  svg.append("g")
+    .attr({
+      "class": "y axis",
+      "transform": "translate(" + margin + ", " + margin + ")",
+    })
+    .call(yAxis);
+
+  // 加入圓點
+  svg.selectAll('.dot')
+    .data(data)
+    .enter()
+    .append('g')
+      .classed('dot', true)
+      .append('circle')
+        .attr({
+          'cx': function(d, i) {
+            return xScale(new Date('2016/' + (i + 1) + '/01')) + margin;
+          },
+          'cy': function(d, i) {
+            return yScale2(d) + margin;
+          },
+          'r': 10,
+          'fill': '#555'
+        });
+
+    svg.select('.x.axis').selectAll('.tick text').attr("dx", width * 0.05);
+    svg.select('.x.axis').selectAll('.tick line').attr('transform', 'translate(' + width * 0.05 + ', 0)');
+    svg.selectAll('.dot').attr('transform', 'translate(' + width * 0.05 + ', 0)');
+  </script>
+
+</body>
+</html>
