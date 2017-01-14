@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style type="text/css">
+    .gmap { display: block; width: 980px; height: 600px; }
+    .SvgOverlay { position: relative; width: 980px; height: 600px; }
+    .SvgOverlay svg { position: absolute; top: -4000px; left: -4000px; width: 8000px; height: 8000px; }
+    p.msg{ display: block; height: auto; width: 980px; background-color: pink; line-height: 25px; padding-left: 10px; }
+    p.msg > span{ margin-right: 1em; }
+  </style>
+</head>
+<body>
+
+<p>
+  <label><input type="radio" name="isShow" value="0" checked> 隱藏邊界</label>
+  <label><input type="radio" name="isShow" value="1"> 顯示邊界</label>
+</p>
+<p class="msg"></p>
+
+<div class="gmap" id="map-canvas"></div>
+
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<script>
+var map;
+var overlay = new google.maps.OverlayView();
+
+function twd97_to_latlng($x, $y) {
+  var pow = Math.pow, M_PI = Math.PI;
+  var sin = Math.sin, cos = Math.cos, tan = Math.tan;
+  var $a = 6378137.0, $b = 6356752.314245;
+  var $lng0 = 121 * M_PI / 180, $k0 = 0.9999, $dx = 250000, $dy = 0;
+  var $e = pow((1 - pow($b, 2) / pow($a, 2)), 0.5);
+
+  $x -= $dx;
+  $y -= $dy;
+
+  var $M = $y / $k0;
+
+  var $mu = $M / ($a * (1.0 - pow($e, 2) / 4.0 - 3 * pow($e, 4) / 64.0 - 5 * pow($e, 6) / 256.0));
+  var $e1 = (1.0 - pow((1.0 - pow($e, 2)), 0.5)) / (1.0 + pow((1.0 - pow($e, 2)), 0.5));
+
+  var $J1 = (3 * $e1 / 2 - 27 * pow($e1, 3) / 32.0);
+  var $J2 = (21 * pow($e1, 2) / 16 - 55 * pow($e1, 4) / 32.0);
+  var $J3 = (151 * pow($e1, 3) / 96.0);
+  var $J4 = (1097 * pow($e1, 4) / 512.0);
+
+  var $fp = $mu + $J1 * sin(2 * $mu) + $J2 * sin(4 * $mu) + $J3 * sin(6 * $mu) + $J4 * sin(8 * $mu);
+
+  var $e2 = pow(($e * $a / $b), 2);
+  var $C1 = pow($e2 * cos($fp), 2);
+  var $T1 = pow(tan($fp), 2);
+  var $R1 = $a * (1 - pow($e, 2)) / pow((1 - pow($e, 2) * pow(sin($fp), 2)), (3.0 / 2.0));
+  var $N1 = $a / pow((1 - pow($e, 2) * pow(sin($fp), 2)), 0.5);
+
+  var $D = $x / ($N1 * $k0);
+
+  var $Q1 = $N1 * tan($fp) / $R1;
+  var $Q2 = (pow($D, 2) / 2.0);
+  var $Q3 = (5 + 3 * $T1 + 10 * $C1 - 4 * pow($C1, 2) - 9 * $e2) * pow($D, 4) / 24.0;
+  var $Q4 = (61 + 90 * $T1 + 298 * $C1 + 45 * pow($T1, 2) - 3 * pow($C1, 2) - 252 * $e2) * pow($D, 6) / 720.0;
+  var $lat = $fp - $Q1 * ($Q2 - $Q3 + $Q4);
+
+  var $Q5 = $D;
+  var $Q6 = (1 + 2 * $T1 + $C1) * pow($D, 3) / 6;
+  var $Q7 = (5 - 2 * $C1 + 28 * $T1 - 3 * pow($C1, 2) + 8 * $e2 + 24 * pow($T1, 2)) * pow($D, 5) / 120.0;
+  var $lng = $lng0 + ($Q5 - $Q6 + $Q7) / cos($fp);
+
+  $lat = ($lat * 180) / M_PI;
+  $lng = ($lng * 180) / M_PI;
+
+  return { lat: $lat, lng: $lng };
+}
+
+function initialize() {
+  var mapOptions = { zoom: 15, center: new google.maps.LatLng(25.03326, 121.518168) };
+  map = new google.maps.Map( document.getElementById('map-canvas') , mapOptions);
+}
+
+initialize();
+
+d3.json('data/apiAccess.json', function(data){
+  var result = data.result.results;
+  var arr = [];
+
+  result.map(function(d){
+    var coords = twd97_to_latlng(d.tw97x, d.tw97y);
+    d.arr = [coords.lat, coords.lng];
+  });
+
+  main( result );
+});
+
+function main(points) {
+
+  overlay.onAdd = function () {
+
+    var layer = d3.select(this.getPanes().overlayMouseTarget).append("div").attr("class", "SvgOverlay");
+    var svg = layer.append("svg");
+    var svgoverlay = svg.append("g").attr("class", "AdminDivisions");
+    var markerOverlay = this;
+    var overlayProjection = markerOverlay.getProjection();
+    var edgeWidth = 0;
+
+    function addLine(x1, y1, x2, y2){
+        var line = svgoverlay.append("line").attr("class", "saitan")
+        line.transition().attr({ "x1": x1, "y1": y1, "x2": x2, "y2": y2, "stroke": "red", "stroke-width": 3 });
+    }
+
+    function addCircle(x, y, r){
+      var circle = svgoverlay.append("circle").attr("class", "saitan").attr({ r: 0 })
+      circle.transition().attr({ "cx": x, "cy": y, "r": r, "fill": "none", "stroke": "red", "stroke-width": 3 });
+    }
+
+    var googleMapProjection = function (coordinates) {
+      var googleCoordinates = new google.maps.LatLng(coordinates[0], coordinates[1]);
+      var pixelCoordinates = overlayProjection.fromLatLngToDivPixel(googleCoordinates);
+      return [pixelCoordinates.x + 4000, pixelCoordinates.y + 4000];
+    }
+
+    overlay.draw = function () {
+
+      var pointdata = points;
+
+      var positions = [];
+
+      pointdata.forEach(function(d, i) {
+        positions.push(googleMapProjection(d.arr));
+      });
+
+      var polygons = d3.geom.voronoi(positions);
+
+      var pathAttr = {
+        "d": function(d, i) { return (polygons[i]) ? "M" + polygons[i].join("L") + "Z" : null; },
+        'stroke-width': edgeWidth,
+        'stroke': "#000",
+        'fill': function(d, i) { return "transparent"; }
+      };
+
+      // 邊界
+      var path = svgoverlay.selectAll("path")
+        .data(pointdata)
+        .attr(pathAttr)
+        .enter()
+        .append("svg:path")
+        .attr(pathAttr);
+
+      path.on({
+        'click': function(d, i){
+          var mouseXY = d3.mouse(this);
+          var cx = d3.select(circle[0][i]).attr('cx');
+          var cy = d3.select(circle[0][i]).attr('cy');
+
+          addCircle(cx, cy, 20);
+          addLine(cx, cy, mouseXY[0], mouseXY[1])
+          addCircle(mouseXY[0], mouseXY[1], 4);
+          d3.select('p.msg').html('<span>' + pointdata[i].name + '</span><span>' + pointdata[i].payex + '</span>');
+        }
+      });
+
+      var circleAttr = {
+        "cx": function(d, i) { return positions[i][0]; },
+        "cy": function(d, i) { return positions[i][1]; },
+        "r": 4,
+        fill: "#000"
+      };
+
+      var circle = svgoverlay.selectAll("circle")
+        .data(pointdata)
+        .attr(circleAttr)
+        .enter()
+        .append("svg:circle")
+        .attr(circleAttr);
+
+      google.maps.event.addListener(map, 'zoom_changed', function(){
+        d3.selectAll('.saitan').remove();
+        d3.select('p.msg').html('');
+      });
+
+    };
+
+    $('input[name="isShow"]').change(function(){
+      var val = $(this).val();
+      var colors = d3.scale.category20b();
+
+      if( val === '0' ){
+        svgoverlay.selectAll("path").attr({
+          'stroke-width': 0,
+          'fill': 'transparent',
+          'fill-opacity': 0
+        });
+        edgeWidth = 0;
+      }else{
+        svgoverlay.selectAll("path").attr({
+          'stroke-width': 1,
+          'fill': function(d, i){ return colors(i); },
+          'fill-opacity': 0.2
+        });
+        edgeWidth = 1;
+      }
+    });
+  };
+
+  overlay.setMap(map);
+};
+
+
+</script>

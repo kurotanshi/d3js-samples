@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style type="text/css">
+    .wrap{ overflow: hidden; }
+    .gmap{ float: left; display: block; width: 500px; height: 500px; }
+    #range{ display: inline; width: 300px; }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="gmap" id="map-canvas"></div>
+<div class="gmap" id="map-stview"></div>
+</div>
+
+<p class="msg"></p>
+<input id="range" type="range" list="data1" value="0" max="53000" min="0" name="range">
+<span class="distance">0</span>M
+
+<script async defer src="//maps.googleapis.com/maps/api/js?key=AIzaSyBxKtiOh3lYNzXBI6jjjC_oOGaqF1Z6Uy0"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="http://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"></script>
+
+<script>
+var map, features;
+
+function initialize() {
+  $('#range').val(0);
+  map = new google.maps.Map(document.getElementById('map-canvas'), {
+    zoom: 13,
+    mapTypeId: google.maps.MapTypeId.TERRAIN,
+    center: new google.maps.LatLng(25.06126, 121.529168)
+  });
+}
+
+
+d3.json("data/history.json", function(data) {
+  // 轉成 GeoJson
+  var line = turf.linestring( data.features[0].geometry.coordinates );
+
+  // 計算路徑總長度
+  d3.select('.msg').text('總長約 '+ turf.lineDistance(line, 'kilometers') +' 公里');
+
+  initialize();
+
+  var along = turf.along(line, 0, 'kilometers');
+  var result = { "type": "FeatureCollection", "features": [line, along] };
+  var features = map.data.addGeoJson(result);
+  setStreetView( along.geometry.coordinates );
+  map.data.setStyle(function(feature) {
+    if( feature.getGeometry().getType() === 'Point' )
+      return { icon: 'https://cdn3.iconfinder.com/data/icons/freeapplication/png/24x24/Person.png' };
+  });
+
+
+  $("#range").on("change", function(){
+    var meter = this.value;
+    $(".distance").text(meter);
+    along = turf.along(line, meter / 1000, 'kilometers');
+
+    setStreetView( along.geometry.coordinates );
+    result = { "type": "FeatureCollection", "features": [line, along] };
+
+    // 更新 map.data
+    for (var i = 0; i < features.length; i++){ map.data.remove(features[i]); }
+    features = map.data.addGeoJson(result);
+    map.panTo(new google.maps.LatLng(along.geometry.coordinates[1], along.geometry.coordinates[0]));
+
+    map.data.setStyle(function(feature) {
+      if( feature.getGeometry().getType() === 'Point' )
+        return { icon: 'https://cdn3.iconfinder.com/data/icons/freeapplication/png/24x24/Person.png' };
+    });
+
+  });
+
+  // 街景相關
+  function setStreetView(coords){
+    var stviewOptions = {
+      position: new google.maps.LatLng(coords[1], coords[0]),
+      // heading: 角度
+      pov: { heading: 90, pitch: 0 }
+    };
+    var stview = new google.maps.StreetViewPanorama(document.getElementById('map-stview'), stviewOptions);
+    // StreetViewPanorama Handler
+    // map.setStreetView(stview);
+  }
+
+});
+
+</script>

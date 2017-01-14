@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    .gmap{ display: block; width: 880px; height: 600px; }
+  </style>
+</head>
+<body>
+
+  <p>
+    <label><input type="radio" name="isShow" value="0" checked> 隱藏節點</label>
+    <label><input type="radio" name="isShow" value="1"> 顯示節點</label>
+  </p>
+  <div class="gmap" id="map-canvas"></div>
+
+  <script src="http://maps.googleapis.com/maps/api/js?libraries=geometry,visualization,places"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+
+
+<script>
+var map, geoJson = { "type": "FeatureCollection", "features": [] };
+var infoWindow = new google.maps.InfoWindow({ content: "", pixelOffset: new google.maps.Size(0, -20) });
+
+function twd97_to_latlng($x, $y) {
+  var pow = Math.pow, M_PI = Math.PI;
+  var sin = Math.sin, cos = Math.cos, tan = Math.tan;
+  var $a = 6378137.0, $b = 6356752.314245;
+  var $lng0 = 121 * M_PI / 180, $k0 = 0.9999, $dx = 250000, $dy = 0;
+  var $e = pow((1 - pow($b, 2) / pow($a, 2)), 0.5);
+
+  $x -= $dx;
+  $y -= $dy;
+
+  var $M = $y / $k0;
+
+  var $mu = $M / ($a * (1.0 - pow($e, 2) / 4.0 - 3 * pow($e, 4) / 64.0 - 5 * pow($e, 6) / 256.0));
+  var $e1 = (1.0 - pow((1.0 - pow($e, 2)), 0.5)) / (1.0 + pow((1.0 - pow($e, 2)), 0.5));
+
+  var $J1 = (3 * $e1 / 2 - 27 * pow($e1, 3) / 32.0);
+  var $J2 = (21 * pow($e1, 2) / 16 - 55 * pow($e1, 4) / 32.0);
+  var $J3 = (151 * pow($e1, 3) / 96.0);
+  var $J4 = (1097 * pow($e1, 4) / 512.0);
+
+  var $fp = $mu + $J1 * sin(2 * $mu) + $J2 * sin(4 * $mu) + $J3 * sin(6 * $mu) + $J4 * sin(8 * $mu);
+
+  var $e2 = pow(($e * $a / $b), 2);
+  var $C1 = pow($e2 * cos($fp), 2);
+  var $T1 = pow(tan($fp), 2);
+  var $R1 = $a * (1 - pow($e, 2)) / pow((1 - pow($e, 2) * pow(sin($fp), 2)), (3.0 / 2.0));
+  var $N1 = $a / pow((1 - pow($e, 2) * pow(sin($fp), 2)), 0.5);
+
+  var $D = $x / ($N1 * $k0);
+
+  var $Q1 = $N1 * tan($fp) / $R1;
+  var $Q2 = (pow($D, 2) / 2.0);
+  var $Q3 = (5 + 3 * $T1 + 10 * $C1 - 4 * pow($C1, 2) - 9 * $e2) * pow($D, 4) / 24.0;
+  var $Q4 = (61 + 90 * $T1 + 298 * $C1 + 45 * pow($T1, 2) - 3 * pow($C1, 2) - 252 * $e2) * pow($D, 6) / 720.0;
+  var $lat = $fp - $Q1 * ($Q2 - $Q3 + $Q4);
+
+  var $Q5 = $D;
+  var $Q6 = (1 + 2 * $T1 + $C1) * pow($D, 3) / 6;
+  var $Q7 = (5 - 2 * $C1 + 28 * $T1 - 3 * pow($C1, 2) + 8 * $e2 + 24 * pow($T1, 2)) * pow($D, 5) / 120.0;
+  var $lng = $lng0 + ($Q5 - $Q6 + $Q7) / cos($fp);
+
+  $lat = ($lat * 180) / M_PI;
+  $lng = ($lng * 180) / M_PI;
+
+  return { lat: $lat, lng: $lng };
+}
+
+d3.json('data/apiAccess.json', function(data){
+  var result = data.result.results;
+  d3.json('data/parking_data.json', function(data){
+    var parking_status;
+    parking_status = data.result.results;
+
+    result.map(function(d){
+      var coords = twd97_to_latlng(d.tw97x, d.tw97y);
+      d.coords = [coords.lat, coords.lng];
+    });
+
+    for (var i = 0; i < parking_status.length; i++) {
+      for (var j = 0; j < result.length; j++) {
+        if( !!result[j].availableCar ) continue;
+        if( result[j].id === parking_status[i].id ){
+          result[j].availableCar = (parking_status[i].availableCar > 0) ? parseInt(parking_status[i].availableCar, 10) : 0;
+          break;
+        }
+      }
+    }
+    initialize();
+    draw( result );
+
+  });
+});
+
+
+function initialize() {
+  var mapOptions = { zoom: 13, center: new google.maps.LatLng(25.06326, 121.55168) };
+  map = new google.maps.Map($('#map-canvas')[0] , mapOptions);
+}
+// // init map
+// google.maps.event.addDomListener(window, 'load', initialize);
+
+
+
+function draw(data){
+  var features = [];
+
+  // convert to geojson
+  for (var i = 0; i < data.length; i++) {
+    features.push(
+      turf.point([data[i].coords[1], data[i].coords[0]], { valueCount: data[i].availableCar || parseInt(Math.random() * 10, 10), name: data[i].name })
+    );
+  }
+
+  geoJson = turf.featurecollection(features);
+
+  google.maps.event.addListenerOnce(map, "idle", function() {
+    bounds = map.getBounds();
+    var ne = bounds.getNorthEast();
+    var sw = bounds.getSouthWest();
+    var minX = sw.lng() + 0.001, maxX = ne.lng() - 0.001;
+    var minY = sw.lat() + 0.001, maxY = ne.lat() - 0.001;
+
+    var aggregations = [
+      {
+        aggregation: 'sum',
+        inField: 'valueCount',
+        outField: 'area_sum'
+      },
+      {
+        aggregation: 'average',
+        inField: 'valueCount',
+        outField: 'area_avg'
+      },
+      {
+        aggregation: 'median',
+        inField: 'valueCount',
+        outField: 'area_median'
+      },
+      {
+        aggregation: 'min',
+        inField: 'valueCount',
+        outField: 'area_min'
+      },
+      {
+        aggregation: 'max',
+        inField: 'valueCount',
+        outField: 'area_max'
+      },
+      {
+        aggregation: 'deviation',
+        inField: 'valueCount',
+        outField: 'area_deviation'
+      },
+      {
+        aggregation: 'variance',
+        inField: 'valueCount',
+        outField: 'area_variance'
+      },
+      {
+        aggregation: 'count',
+        inField: '',
+        outField: 'area_count'
+      }
+    ];
+
+    var bbox = [minX, minY, maxX, maxY];
+    var cellWidth = 0.8;
+    var units = 'kilometers';
+    var hexgrid = turf.hexGrid(bbox, cellWidth, units);
+
+    var grid = turf.aggregate(hexgrid, geoJson, aggregations);
+    map.data.addGeoJson( grid );
+
+    hideMarker();
+
+    map.data.addGeoJson( geoJson );
+
+    map.data.addListener('click', function(e) {
+      var feature_type = e.feature.getGeometry().getType();
+
+      var reformattedArray = aggregations.map(function(obj){
+         var attr = [];
+         attr.push( obj.outField );
+         return attr;
+      });
+
+      reformattedArray = reformattedArray.join().split(',');
+
+      if( feature_type === 'Point' ){
+        var str = '<div style="line-height: 200%;">'+ e.feature.getProperty("name") + "</div>";
+        str += '<div style="line-height: 200%;"> 可用車位 = ' + e.feature.getProperty("valueCount") + "</div>";
+        infoWindow.setContent( str );
+      }
+
+      if( feature_type === 'Polygon' ){
+        var str = [];
+
+        for (var i = 0; i < reformattedArray.length; i++) {
+          str.push('<div style="line-height: 200%;"> '+ reformattedArray[i] +' = ' + e.feature.getProperty( reformattedArray[i] ) + "</div>");
+        }
+
+        infoWindow.setContent( str.join('') );
+      }
+
+      var anchor = new google.maps.MVCObject();
+      anchor.set("position", e.latLng);
+      if( feature_type === 'Polygon' && e.feature.getProperty("area_sum") > 0 || feature_type === 'Point'){
+        infoWindow.open(map, anchor);
+      }
+
+    });
+
+    $('input[name="isShow"]').change(function(){
+      var val = $(this).val();
+
+      if( val === '0' ){
+        hideMarker();
+      }else{
+        showMarker();
+      }
+    });
+
+  });
+
+  function hideMarker(){
+    map.data.setStyle(function(feature) {
+      // area
+      if( feature.getProperty('area_sum')){
+        var n = parseInt(feature.getProperty('area_sum'), 10);
+        if( n > 100 ){
+          return { fillOpacity: 0.3, fillColor: 'green', strokeWeight: 1, strokeColor: '#333', strokeOpacity: 1};
+        }
+        else if ( n > 50 ) {
+          return { fillOpacity: 0.3, fillColor: 'yellow', strokeWeight: 1, strokeColor: '#333', strokeOpacity: 1 };
+        }
+        else if ( n > 20 ) {
+          return { fillOpacity: 0.3, fillColor: 'orange', strokeWeight: 1, strokeColor: '#333', strokeOpacity: 1 };
+        }
+        else {
+          return { fillOpacity: 0.3, fillColor: 'red', strokeWeight: 1, strokeColor: '#333', strokeOpacity: 1 };
+        }
+      }
+      // icon
+      else if( typeof feature.getProperty('valueCount') !== 'undefined' ){
+        return { visible: false };
+      }
+      else{
+        return { visible: false };
+      }
+    });
+
+  }
+
+  function showMarker(){
+    map.data.setStyle(function(feature) {
+      var icon_url = 'http://maps.gstatic.com/mapfiles/ridefinder-images/';
+      var icons = ['mm_20_green.png', 'mm_20_yellow.png', 'mm_20_orange.png', 'mm_20_red.png', 'mm_20_black.png'];
+
+      // area
+      if( feature.getProperty('area_sum')){
+        var n = parseInt(feature.getProperty('area_sum'), 10);
+        if( n > 100 ){
+          return { fillOpacity: 0.3, fillColor: 'green', strokeWeight: 1, strokeColor: '#333', strokeOpacity: 1};
+        }
+        else if ( n > 50 ) {
+          return { fillOpacity: 0.3, fillColor: 'yellow', strokeWeight: 1, strokeColor: '#333', strokeOpacity: 1 };
+        }
+        else if ( n > 20 ) {
+          return { fillOpacity: 0.3, fillColor: 'orange', strokeWeight: 1, strokeColor: '#999', strokeOpacity: 1 };
+        }
+        else {
+          return { fillOpacity: 0.3, fillColor: 'red', strokeWeight: 1, strokeColor: '#999', strokeOpacity: 1 };
+        }
+      }
+      // icon
+      else if( typeof feature.getProperty('valueCount') !== 'undefined' ){
+        var count = parseInt( feature.getProperty('valueCount'), 10);
+        if( count > 100 ) { return { icon: icon_url + icons[0] }; }
+        else if( count > 50 ) { return { icon: icon_url + icons[1] }; }
+        else if( count > 20 ) { return { icon: icon_url + icons[2] }; }
+        else if( count > 0 ) { return { icon: icon_url + icons[3] }; }
+        else { return { icon: icon_url + icons[3] }; }
+      }
+      else{
+        return { visible: false };
+      }
+    });
+  }
+
+
+  map.data.addListener('click', function(event) {
+    //show an infowindow on click
+    var anchor = new google.maps.MVCObject();
+    anchor.set("position", event.latLng);
+    infoWindow.open(map, anchor);
+  });
+};
+
+</script>
+
+
+</body>
+</html>
