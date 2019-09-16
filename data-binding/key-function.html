@@ -9,25 +9,25 @@
 
 <body>
   <script>
-  var data = [{
-    'name': 'kuro',
-    'age': 30
-  }, {
-    'name': 'John',
-    'age': 20
-  }, {
-    'name': 'Mary',
-    'age': 18
-  }];
+    var data = [{
+      'name': 'kuro',
+      'age': 30
+    }, {
+      'name': 'John',
+      'age': 20
+    }, {
+      'name': 'Mary',
+      'age': 18
+    }];
 
-  var p = d3.select('body')
-    .selectAll('p')
-    .data(data)
-    .enter()
-    .append('p')
-    .text(function(d, i) {
-      return d.name + ': ' + d.age + '歲';
-    });
+    var p = d3.select('body')
+      .selectAll('p')
+      .data(data)
+      .enter()
+      .append('p')
+      .text(function (d, i) {
+        return d.name + ': ' + d.age + '歲';
+      });
   </script>
 </body>
 
