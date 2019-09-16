@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>scale</title>
   <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
@@ -8,9 +9,9 @@
 <body>
   <script type="text/javascript">
 
-    var d3Scale = d3.scale.linear() // linear
-      .domain([0, 1000])    // 傳入範圍
-      .range([0, 100]);     // 輸出範圍
+    var d3Scale = d3.scaleLinear()
+      .domain([0, 1000])  // 傳入範圍
+      .range([0, 100])    // 輸出範圍
 
     console.log('d3Scale(500)', d3Scale(500)); // 50
     console.log('d3Scale(123)', d3Scale(123)); // 12.3

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+    .cat {
+      width: 800px;
+      overflow: hidden;
+      margin-bottom: 1em;
+    }
+
+    .cat>div {
+      float: left;
+      width: 100px;
+      height: 50px;
+      line-height: 50px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      text-align: center;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script type="text/javascript">
+    const body = d3.select('body');
+    const colorSet = ['schemeCategory10', 'schemeAccent', 'schemeDark2', 'schemePaired', 'schemePastel1', 'schemePastel2', 'schemeSet1', 'schemeSet2', 'schemeSet3', 'schemeTableau10'];
+
+    for (let c in colorSet) {
+      let colors = d3[colorSet[c]];
+
+      body.append('h2').text(`d3.scaleOrdinal( d3.${colorSet[c]} )`);
+      body.append('div')
+        .classed(`cat`, true)
+        .classed(`${colorSet[c]}`, true);
+
+      for (let i = 0; i < colors.length; i++) {
+        d3.select(`.${colorSet[c]}`)
+          .append('div')
+          .text(i)
+          .style('background-color', colors[i]);
+      }
+    }
+
+  </script>
+</body>
+
+</html>
