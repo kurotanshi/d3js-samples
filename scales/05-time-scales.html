@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+    div {
+      height: 25px;
+      line-height: 25px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+    var body = d3.select('body');
+
+    // %f: milliseconds
+    // %S: seconds
+    // %M: minute
+    // %H: hour (24h)
+    // %I: hour (12h)
+    // %p: AM / PM
+    // %d: day of the month
+    // %a: abbreviated weekday name
+    // %A: full weekday name
+    // %b: abbreviated month name
+    // %B: full month name
+    // %m: month
+    // %Y: year
+    // %Z: time zone offset
+    var timeFormat = d3.timeFormat("%Y/%m/%d");
+
+    // scaleTime
+    var scaleTime = d3.scaleTime()
+      .domain([0, 12])
+      .range([new Date('2018/01/01'), new Date('2019/01/01')]);
+
+    for (var i = 0; i < 12; i++) {
+
+      body.append('div')
+        .text(`${i}, ${scaleTime(i)}, ${timeFormat(scaleTime(i))}`)
+
+    }
+  </script>
+</body>
+
+</html>
