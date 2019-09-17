@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Line Chart with interpolate</title>
+  <script src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+    html,
+    body {
+      display: block;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      padding: 10px;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke-width: 2px;
+    }
+
+    .domain,
+    .tick line {
+      stroke: #eee;
+    }
+
+    .axis text {
+      font-size: 12px;
+      fill: #555;
+    }
+
+    .line {
+      fill: none;
+      stroke: #ef0d0c;
+      stroke-width: 1.5px;
+    }
+
+    .content {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-width: 300px;
+      max-width: 960px;
+      max-height: 500px;
+      overflow: hidden;
+    }
+
+    button {
+      font-size: 1em;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="data"></div>
+  <div class="content">
+    <svg class="svg"></svg>
+  </div>
+  <script type="text/javascript">
+    var data = [];
+
+    // 亂數產生資料
+    for (var i = 0; i < 15; i++) {
+      data.push({
+        year: 2000 + i,
+        value: Math.floor(Math.random() * 42500) + 7500
+      })
+    };
+
+    var svg = d3.select('.svg');
+    var margin = 60,
+      width = 960 - margin * 2,
+      height = 500 - margin * 2;
+
+    svg.attr({
+      "width": width + margin,
+      "height": height + margin * 2,
+      "transform": "translate(" + margin + "," + margin + ")"
+    });
+
+    var xScale = d3.scaleBand()
+      .domain(data.map(d => d.year))
+      .range([0, width]);
+
+    var yScale = d3.scaleLinear()
+      .domain([0, d3.max(data.map(d => d.value)) * 1.1])
+      .range([0, height]);
+
+    var yScale2 = d3.scaleLinear()
+      .domain([0, d3.max(data.map(d => d.value)) * 1.1])
+      .range([height, 0]);
+
+    var xAxis = d3.axisBottom()
+      .scale(xScale)
+      .tickSizeInner(-height)
+      .tickSizeOuter(0)
+      .tickPadding(10)
+
+    var yAxis = d3.axisLeft()
+      .scale(yScale2)
+      .tickSizeInner(-(width + 20))
+      .tickSizeOuter(0)
+      .tickPadding(10)
+
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", `translate(${margin}, ${height + margin})`)
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", `translate(${margin}, ${margin})`)
+      .call(yAxis);
+
+    var linePath = d3.line()
+      .x(d => xScale(d.year) + margin)
+      .y(d => yScale2(d.value) + margin);
+
+
+    // 畫線
+    svg.selectAll("path.xline")
+      .data([data])
+      .enter()
+      .append("path")
+      .classed('xline', true)
+      .attr('fill', 'none')
+      .attr('stroke', 'red')
+      .attr('stroke-width', '2')
+      .attr('d', d => linePath(d))
+
+    // 圓點
+    svg.selectAll('.dot')
+      .data(data)
+      .enter()
+      .append('g')
+      .classed('dot', true)
+      .append('circle')
+      .attr('cx', d => xScale(d.year) + margin)
+      .attr('cy', d => yScale2(d.value) + margin)
+      .attr('r', 5)
+      .attr('fill', '#555')
+
+
+    // 位移
+    svg.select('.x.axis').selectAll('.tick text')
+      .attr("dx", 25);
+
+    svg.select('.x.axis').selectAll('.tick line')
+      .attr('transform', 'translate(25, 0)');
+
+    svg.selectAll('.xline')
+      .attr('transform', 'translate(20, 0)');
+
+    svg.selectAll('.dot')
+      .attr('transform', 'translate(20, 0)');
+
+
+    // 定義變形
+    var interpolates = ['curveLinear', 'curveStep', 'curveStepBefore', 'curveStepAfter', 'curveBasis', 'curveCardinal', 'curveMonotoneX', 'curveCatmullRom'];
+
+    d3.select('body')
+      .selectAll('.btn')
+      .data(interpolates)
+      .enter()
+      .append('button')
+      .classed('btn', true)
+      .text(function (d) {
+        return d;
+      });
+
+    // 按鈕事件
+    d3.selectAll('.btn').on('click', function (e) {
+      var interpolate = d3.select(this).text();
+
+      var linePath = d3.line()
+        .x(d => xScale(d.year) + margin)
+        .y(d => yScale2(d.value) + margin)
+        .curve(d3[interpolate]);
+
+      svg.selectAll("path.xline")
+        .transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
+        .attr('d', d => linePath(d));
+    });
+  </script>
+</body>
+
+</html>
