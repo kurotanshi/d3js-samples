@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title></title>
 
   <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
   <style type="text/css">
-
-    svg{
+    svg {
       display: block;
       width: 500px;
       height: 120px;
     }
 
-    button{
+    button {
       font-size: 30px;
     }
-
   </style>
 </head>
+
 <body>
 
 
@@ -27,15 +27,15 @@
   <!--
     練習 #11:
 
-    製作一個 7 個刻度的 colorScale， 從藍色到黃色
-    讓這七個圓圈的顏色 (fill) 分別對應至 colorScale(0) ~ colorScale(6)
+    製作一個 7 個刻度的 colorScale，從藍色到黃色
+    讓這七個圓圈的顏色 (fill) 分別對應至 colorScale(0) ~ colorScale(6)
 
     加分題: 以動畫方式呈現顏色變化
   -->
 
   <script type="text/javascript">
 
-  var data = [2, 3, 5, 2, 4, 1, 6];
+    var data = [2, 3, 5, 2, 4, 1, 6];
 
     d3.select('svg')
       .selectAll('circle')
@@ -43,20 +43,21 @@
       .enter()
       .append('circle')
       .attr({
-        'cx': function(d, i){ return (50 * i) + 20; },
-        'cy': function(d, i){ return 50; },
-         'r': function(d, i){ return d * 4; },
-      'fill': 'red'
+        'cx': function (d, i) { return (50 * i) + 20; },
+        'cy': function (d, i) { return 50; },
+        'r': function (d, i) { return d * 4; },
+        'fill': 'red'
       });
 
     d3.select('button')
-      .on('click', function(){
+      .on('click', function () {
         // todo: 更新 svg 內的圓圈顏色
 
-    });
+      });
 
 
   </script>
 
 </body>
+
 </html>
