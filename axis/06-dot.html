@@ -3,18 +3,14 @@
 
 <head>
   <title></title>
-
   <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
-
   <style type="text/css">
     html,
     body {
-      display: block;
       width: 100%;
       height: 100%;
       padding: 0;
       margin: 0;
-      padding: 10px;
     }
 
     svg {
@@ -25,31 +21,12 @@
     .axis path,
     .axis line {
       fill: none;
-      stroke: #999;
-    }
-
-    .axis path {
-      stroke-width: 2px;
-      stroke: #333;
-    }
-
-    .y.axis .tick:first-child line {
-      stroke: #999;
-    }
-
-    .tick line {
-      stroke: #ddd;
+      stroke: #555;
     }
 
     .axis text {
       fill: #555;
-      font-size: 14px;
-    }
-
-    .line {
-      fill: none;
-      stroke: #ef0d0c;
-      stroke-width: 1.5px;
+      font-size: 12px;
     }
 
     .content {
@@ -67,17 +44,9 @@
       font-size: 1.2em;
     }
   </style>
-
 </head>
 
 <body>
-
-  <!--
-    練習 #11:
-      將左側 y 軸改成 0 ~ 1000  後
-      重新繪製圓點圖
-  -->
-
   <div class="data"></div>
 
   <div class="content">
@@ -89,7 +58,6 @@
 
     // 原始資料, 隨機插入 12 組數字
     var data = [];
-
     for (var i = 0; i < 12; i++) {
       data.push(Math.floor(Math.random() * 85) + 10);
     }
@@ -129,28 +97,25 @@
     // x 軸
     var xAxis = d3.axisBottom()
       .scale(xScale)
-      .tickSizeInner(-height)     // 刻度長度，這裡設定往內長
-      .tickSizeOuter(0)
-      .tickPadding(10)            // 刻度間距
-      .ticks(12)                  // 刻度數量
-      .tickFormat((d, i) => (i > 11) ? '' : d.getMonth() + 1 + '月');    // 以月份表示
+      .ticks(12)
+      .tickFormat(function (d, i) {
+        return (i > 11) ? '' : d3.timeFormat("%Y/%m")(d);
+      });
 
     var yAxis = d3.axisLeft()
       .scale(yScale2)
-      .tickSizeInner(-width)      // 刻度長度，這裡設定往內長
-      .tickSizeOuter(0)
-      .tickPadding(10)            // 刻度間距
+      .tickPadding(10)          // 刻度間距
 
     // 加入 x 軸
     svg.append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+      .attr("transform", `translate(${margin}, ${height + margin})`)
       .call(xAxis);
 
     // 加入 y 軸
     svg.append("g")
       .attr("class", "y axis")
-      .attr("transform", "translate(" + margin + ", " + margin + ")")
+      .attr("transform", `translate(${margin}, ${margin})`)
       .call(yAxis);
 
     // 加入圓點
@@ -160,16 +125,15 @@
       .append('g')
       .classed('dot', true)
       .append('circle')
-      .attr('r', 6)
-      .attr('fill', '#555')
-      .attr('cx', (d, i) => xScale(new Date('2018/' + (i + 1) + '/01')) + margin)
-      .attr('cy', (d, i) => yScale2(d) + margin);
+      .attr('cx', (d, i) => xScale(new Date(`2018/${i + 1}/01`)) + margin)
+      .attr('cy', (d, i) => yScale2(d) + margin)
+      .attr('r', 5)
+      .attr('fill', '#555');
 
     svg.select('.x.axis').selectAll('.tick text').attr("dx", width * 0.05);
     svg.select('.x.axis').selectAll('.tick line').attr('transform', 'translate(' + width * 0.05 + ', 0)');
     svg.selectAll('.dot').attr('transform', 'translate(' + width * 0.05 + ', 0)');
   </script>
-
 </body>
 
 </html>

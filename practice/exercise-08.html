@@ -1,80 +1,32 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title></title>
 
   <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
-
-  <style type="text/css">
-    body{
-      padding: 1em;
-    }
-    .outer{
-      display: block;
-      margin: 10px;
-      margin-left: 0;
-      width: 90%;
-      height: 50px;
-      line-height: 50px;
-      position: relative;
-    }
-
-    .inner{
-      display: block;
-      width: 0;
-      height: 100%;
-      font-size: 20px;
-      color: #fff;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    button{
-      font-size: 20px; padding: 10px;
-    }
-  </style>
-
 </head>
+
 <body>
 
-  <div class="outer">
-    <div class="inner">0</div>
-  </div>
-
-  <button>Go</button>
 
   <!--
-    練習 #8:
-      1. 試著在動畫加入 ease( ) 設定
-      2. 改變進度條開始 / 結束的顏色
-      3. 在動畫結束時，跳出 alert('動畫結束');
+    練習 #08: 如下
+
+    加分題： 若對應 800 ~ 100， d3Scale(4) 又會是多少？
+            code 如何修改？
   -->
 
   <script type="text/javascript">
 
-    d3.select('button').on('click', function(){
+    var d3Scale = d3.scaleLinear()      // scaleLinear
+      .domain([1, 9])      // 傳入範圍
+      .range([10, 800]);   // 輸出範圍
 
-      var inner = d3.select('.inner');
-
-      inner.style({
-        'width': '0%',
-        'background-color': 'red'
-      });
-
-      inner.transition()
-        .duration(3000)
-        .style({
-          'width': '100%',
-          'background-color': 'green'
-        })
-        .attrTween("d", function () {
-          return function (n) {
-           inner.text( Math.floor(n * 100) );
-          };
-        });
-    });
+    console.log(d3Scale(4));       // 多少？
 
   </script>
 
 </body>
+
 </html>
