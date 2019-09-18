@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>D3 Gauge Chart</title>
+  <style type="text/css">
+    svg {
+      display: block;
+      border: 1px solid #000;
+      width: 500px;
+      height: 350px;
+      background-color: #0C2030;
+    }
+
+    .axis text {
+      font-size: 14px;
+      fill: #f1f1f1;
+    }
+
+    .axis .domain,
+    .axis .tick line {
+      stroke-width: 2px;
+      stroke: #157FFB;
+    }
+
+    .label {
+      fill: #fff;
+      stroke: #f00;
+      stroke-width: 1px;
+      font-size: 24px;
+    }
+  </style>
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <script src="https://unpkg.com/d3-radial-axis@1.5/dist/d3-radial-axis.min.js"></script>
+</head>
+
+<body>
+
+  <script>
+    function deg2rad(deg) { return deg * Math.PI / 180; }
+
+    var r = 130,
+      exAngle = 55,
+      whRatio = 2 / (Math.sin(deg2rad(exAngle)) + 1.1),
+      angleScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([(90 + exAngle) * -1, 90 + exAngle]);
+
+    var svg = d3.select('body').append('svg')
+      .attr('viewBox', -r * 0.9 + " " + -r * 1.11 + " " + r * 2 + " " + r * 2 * whRatio);
+
+    var axis = d3.axisRadialInner(angleScale.copy().range(angleScale.range().map(d => deg2rad(d))), r).tickPadding(15);
+
+    // 軸線
+    svg.append('g').classed('axis', true)
+      .call(axis);
+
+    // 指針
+    var pointer = svg.append('g')
+      .attr('transform', 'scale(' + r * 0.85 + ')')
+      .append('path')
+      .attr('fill', 'red')
+      .attr('d', ['M0 -1', 'L0.03 0', 'A 0.03 0.03 0 0 1 -0.03 0', 'Z'].join(' '))
+      .attr('transform', `rotate(${angleScale(0)})`)
+
+    // 目前數值
+    var label = svg.append('text')
+      .classed('label', true)
+      .attr('x', 0)
+      .attr('y', r * 0.6)
+      .attr('text-anchor', 'middle')
+      .text('0');
+
+
+    setInterval(() => {
+      var newVal = Math.round(Math.random() * 100);
+
+      label.transition()
+        .duration(800)
+        .attrTween("d", function () {
+          var v = label.text();
+          return function (n) {
+            var i = d3.interpolateNumber(+v, +newVal);
+            label.text(parseInt(i(n)));
+          };
+        });
+
+
+      pointer.transition()
+        .duration(1200)
+        .ease(d3.easeElastic)
+        .attr('transform', `rotate(${angleScale(newVal)})`);
+
+    }, 3300);
+  </script>
+</body>
+
+</html>
