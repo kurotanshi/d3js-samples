@@ -5,57 +5,169 @@
   <title></title>
 
   <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+
   <style type="text/css">
-    svg {
+    html,
+    body {
       display: block;
-      width: 500px;
-      height: 120px;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      padding: 10px;
     }
 
-    button {
-      font-size: 30px;
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #999;
+    }
+
+    .axis path {
+      stroke-width: 2px;
+      stroke: #333;
+    }
+
+    .y.axis .tick:first-child line {
+      stroke: #999;
+    }
+
+    .tick line {
+      stroke: #ddd;
+    }
+
+    .axis text {
+      fill: #555;
+      font-size: 14px;
+    }
+
+    .line {
+      fill: none;
+      stroke: #ef0d0c;
+      stroke-width: 1.5px;
+    }
+
+    .content {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-width: 300px;
+      max-width: 960px;
+      max-height: 500px;
+      overflow: hidden;
+    }
+
+    .data {
+      margin: 10px 10px 0;
+      font-size: 1.2em;
     }
   </style>
+
 </head>
 
 <body>
 
-
-  <svg></svg>
-  <button>Go</button>
-
   <!--
     練習 #11:
-
-    製作一個 7 個刻度的 colorScale，從藍色到黃色
-    讓這七個圓圈的顏色 (fill) 分別對應至 colorScale(0) ~ colorScale(6)
-
-    加分題: 以動畫方式呈現顏色變化
+      將左側 y 軸改成 0 ~ 1000  後
+      重新繪製圓點圖
   -->
+
+  <div class="data"></div>
+
+  <div class="content">
+    <svg class="svg"></svg>
+  </div>
+
 
   <script type="text/javascript">
 
-    var data = [2, 3, 5, 2, 4, 1, 6];
+    // 原始資料, 隨機插入 12 組數字
+    var data = [];
 
-    d3.select('svg')
-      .selectAll('circle')
+    for (var i = 0; i < 12; i++) {
+      data.push(Math.floor(Math.random() * 85) + 10);
+    }
+
+    // 顯示數值
+    d3.select('.data')
+      .text('data: [' + data.join(', ') + ']');
+
+    // 設定 svg 畫布及邊界
+    var svg = d3.select('.svg');
+
+    var margin = 40,
+      width = 960 - margin * 2,
+      height = 500 - margin * 2;
+
+    svg.attr({
+      "width": width + margin,
+      "height": height + margin * 2,
+      "transform": "translate(" + margin + "," + margin + ")"
+    });
+
+    // x 軸比例尺，採 time.scale, 用來表示時間
+    var xScale = d3.scaleTime()
+      .domain([new Date('2018/01/01'), new Date('2019/01/01')])
+      .range([0, width]);
+
+    // y 軸比例尺
+    var yScale = d3.scaleLinear()
+      .domain([0, 100])
+      .range([0, height]);
+
+    // y 軸比例尺
+    var yScale2 = d3.scaleLinear()
+      .domain([0, 100])
+      .range([height, 0]);
+
+    // x 軸
+    var xAxis = d3.axisBottom()
+      .scale(xScale)
+      .tickSizeInner(-height)     // 刻度長度，這裡設定往內長
+      .tickSizeOuter(0)
+      .tickPadding(10)            // 刻度間距
+      .ticks(12)                  // 刻度數量
+      .tickFormat((d, i) => (i > 11) ? '' : d.getMonth() + 1 + '月');    // 以月份表示
+
+    var yAxis = d3.axisLeft()
+      .scale(yScale2)
+      .tickSizeInner(-width)      // 刻度長度，這裡設定往內長
+      .tickSizeOuter(0)
+      .tickPadding(10)            // 刻度間距
+
+    // 加入 x 軸
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+      .call(xAxis);
+
+    // 加入 y 軸
+    svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + margin + ", " + margin + ")")
+      .call(yAxis);
+
+    // 加入圓點
+    svg.selectAll('.dot')
       .data(data)
       .enter()
+      .append('g')
+      .classed('dot', true)
       .append('circle')
-      .attr({
-        'cx': function (d, i) { return (50 * i) + 20; },
-        'cy': function (d, i) { return 50; },
-        'r': function (d, i) { return d * 4; },
-        'fill': 'red'
-      });
+      .attr('r', 6)
+      .attr('fill', '#555')
+      .attr('cx', (d, i) => xScale(new Date('2018/' + (i + 1) + '/01')) + margin)
+      .attr('cy', (d, i) => yScale2(d) + margin);
 
-    d3.select('button')
-      .on('click', function () {
-        // todo: 更新 svg 內的圓圈顏色
-
-      });
-
-
+    svg.select('.x.axis').selectAll('.tick text').attr("dx", width * 0.05);
+    svg.select('.x.axis').selectAll('.tick line').attr('transform', 'translate(' + width * 0.05 + ', 0)');
+    svg.selectAll('.dot').attr('transform', 'translate(' + width * 0.05 + ', 0)');
   </script>
 
 </body>

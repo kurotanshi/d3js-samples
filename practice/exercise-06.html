@@ -1,41 +1,77 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title></title>
 
   <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
 
   <style type="text/css">
-    body{
+    body {
       padding: 1em;
+    }
+
+    .row {
+      display: block;
+      margin-bottom: 5px;
+      background-color: #e7e7e7;
+    }
+
+    .row .name {
+      height: 25px;
+      line-height: 25px;
+      margin-bottom: 2px;
+    }
+
+    .row .score {
+      background-color: red;
+      text-align: center;
+      color: #fff;
+      padding: 2px 0;
     }
   </style>
 
 </head>
+
 <body>
 
-
+  <!-- HTML 結構
+    <div class="row">
+      <div class="name">Kuro</div>
+      <div class="score">100</div>
+    </div>
+  -->
 
   <!--
-    練習 #6: 改寫 CSS / JS，將原本的長條圖，改成直式的。
+    練習 #6:
+      資料: http://www.json-generator.com/api/json/get/cwbRBclMHS?indent=2
+
+      試著透過提供的資料，為每一筆畫出橫向的長條圖，
+      如果分數 > 60，分數條設定深綠色，如果 < 60 ，分數條設定紅色。
   -->
 
   <script type="text/javascript">
-    var data = [1, 3, 5, 2, 4, 6, 8, 10];
+    d3.json('http://www.json-generator.com/api/json/get/cwbRBclMHS?indent=2')
+      .then(data => {
 
-    d3.select('body')
-      .selectAll('div')
-      .data(data)
-      .enter()
-      .append('div')
-        .style({
-            'width': function (d){ return d * 20 + 'px'; },
-            'height': '20px',
-            'background-color': 'red',
-            'margin-bottom': '5px'
-          });
+        var row = d3.select('body')
+          .selectAll('.row')
+          .data(data)
+          .enter()
+          .append('div')
+          .classed('row', true);
+
+        row.append('div')
+          .classed('name', true)
+          .text(d => d.name);
+
+        row.append('div')
+          .classed('score', true)
+          .text(d => d.score);
+      })
 
   </script>
 
 </body>
+
 </html>
