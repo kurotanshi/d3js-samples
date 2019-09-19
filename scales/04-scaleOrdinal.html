@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <script type="text/javascript" src="../scripts/d3/d3.min.js"></script>
+  <style type="text/css">
+    .cat {
+      width: 800px;
+      overflow: hidden;
+      margin-bottom: 1em;
+    }
+
+    .cat>div {
+      float: left;
+      width: 100px;
+      height: 50px;
+      line-height: 50px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      text-align: center;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script type="text/javascript">
+
+    var d3Scale = d3.scaleOrdinal()  // scaleOrdinal
+      .domain(['A', 'B', 'C', 'D', 'E'])
+      .range(["紅", "藍", "綠"]);
+
+    console.log(d3Scale("A"));
+    console.log(d3Scale("B"));
+    console.log(d3Scale("C"));
+    console.log(d3Scale("D"));
+    console.log(d3Scale("E"));
+
+
+  </script>
+</body>
+
+</html>

@@ -66,102 +66,115 @@
   </div>
   <script type="text/javascript">
 
-    var data = [];
-
-    // 亂數產生資料
-    for (var i = 0; i < 15; i++) {
-      data.push({
-        year: 2000 + i,
-        value: Math.floor(Math.random() * 42500) + 7500
-      })
-    };
-
-    var svg = d3.select('.svg');
-    var margin = 60,
-      width = 960 - margin * 2,
-      height = 500 - margin * 2;
-
-    svg.attr({
-      "width": width + margin,
-      "height": height + margin * 2,
-      "transform": "translate(" + margin + "," + margin + ")"
-    });
-
-    var xScale = d3.scaleBand()
-      .domain(data.map(d => d.year))
-      .range([0, width]);
-
-    var yScale = d3.scaleLinear()
-      .domain([0, d3.max(data.map(d => d.value)) * 1.1])
-      .range([0, height]);
-
-    var yScale2 = d3.scaleLinear()
-      .domain([0, d3.max(data.map(d => d.value)) * 1.1])
-      .range([height, 0]);
-
-    var xAxis = d3.axisBottom()
-      .scale(xScale)
-      .tickSizeInner(-height)
-      .tickSizeOuter(0)
-      .tickPadding(10)
-
-    var yAxis = d3.axisLeft()
-      .scale(yScale2)
-      .tickSizeInner(-(width + 20))
-      .tickSizeOuter(0)
-      .tickPadding(10)
-
-    svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", `translate(${margin}, ${height + margin})`)
-      .call(xAxis);
-
-    svg.append("g")
-      .attr("class", "y axis")
-      .attr("transform", `translate(${margin}, ${margin})`)
-      .call(yAxis);
+    var svg = d3.select('svg');
 
     var linePath = d3.line()
-      .x(d => xScale(d.year) + margin)
-      .y(d => yScale2(d.value) + margin);
+      .x(function (d, i) { return d; })
+      .y(function (d, i) { return (i % 2 === 0) ? 40 : 120; })
 
+    var data = [40, 80, 120, 160, 200, 240, 280, 320, 360];
 
-    // 畫線
-    svg.selectAll("path.xline")
-      .data([data])
-      .enter()
-      .append("path")
-      .classed('xline', true)
-      .attr('fill', 'none')
+    svg.append('path')
       .attr('stroke', 'red')
-      .attr('stroke-width', '2')
-      .attr('d', d => linePath(d))
+      .attr('fill', 'none')
+      .attr('d', linePath(data));
 
-    // 圓點
-    svg.selectAll('.dot')
-      .data(data)
-      .enter()
-      .append('g')
-      .classed('dot', true)
-      .append('circle')
-      .attr('cx', d => xScale(d.year) + margin)
-      .attr('cy', d => yScale2(d.value) + margin)
-      .attr('r', 5)
-      .attr('fill', '#555')
+    // var data = [];
+
+    // // 亂數產生資料
+    // for (var i = 0; i < 15; i++) {
+    //   data.push({
+    //     year: 2000 + i,
+    //     value: Math.floor(Math.random() * 42500) + 7500
+    //   })
+    // };
+
+    // var svg = d3.select('.svg');
+    // var margin = 60,
+    //   width = 960 - margin * 2,
+    //   height = 500 - margin * 2;
+
+    // svg.attr({
+    //   "width": width + margin,
+    //   "height": height + margin * 2,
+    //   "transform": "translate(" + margin + "," + margin + ")"
+    // });
+
+    // var xScale = d3.scaleBand()
+    //   .domain(data.map(d => d.year))
+    //   .range([0, width]);
+
+    // var yScale = d3.scaleLinear()
+    //   .domain([0, d3.max(data.map(d => d.value)) * 1.1])
+    //   .range([0, height]);
+
+    // var yScale2 = d3.scaleLinear()
+    //   .domain([0, d3.max(data.map(d => d.value)) * 1.1])
+    //   .range([height, 0]);
+
+    // var xAxis = d3.axisBottom()
+    //   .scale(xScale)
+    //   .tickSizeInner(-height)
+    //   .tickSizeOuter(0)
+    //   .tickPadding(10)
+
+    // var yAxis = d3.axisLeft()
+    //   .scale(yScale2)
+    //   .tickSizeInner(-(width + 20))
+    //   .tickSizeOuter(0)
+    //   .tickPadding(10)
+
+    // svg.append("g")
+    //   .attr("class", "x axis")
+    //   .attr("transform", `translate(${margin}, ${height + margin})`)
+    //   .call(xAxis);
+
+    // svg.append("g")
+    //   .attr("class", "y axis")
+    //   .attr("transform", `translate(${margin}, ${margin})`)
+    //   .call(yAxis);
+
+    // var linePath = d3.line()
+    //   .x(d => xScale(d.year) + margin)
+    //   .y(d => yScale2(d.value) + margin);
 
 
-    // 位移
-    svg.select('.x.axis').selectAll('.tick text')
-      .attr("dx", 25);
+    // // 畫線
+    // svg.selectAll("path.xline")
+    //   .data([data])
+    //   .enter()
+    //   .append("path")
+    //   .classed('xline', true)
+    //   .attr('fill', 'none')
+    //   .attr('stroke', 'red')
+    //   .attr('stroke-width', '2')
+    //   .attr('d', d => linePath(d))
 
-    svg.select('.x.axis').selectAll('.tick line')
-      .attr('transform', 'translate(25, 0)');
+    // // 圓點
+    // svg.selectAll('.dot')
+    //   .data(data)
+    //   .enter()
+    //   .append('g')
+    //   .classed('dot', true)
+    //   .append('circle')
+    //   .attr('cx', d => xScale(d.year) + margin)
+    //   .attr('cy', d => yScale2(d.value) + margin)
+    //   .attr('r', 5)
+    //   .attr('fill', '#555')
 
-    svg.selectAll('.xline')
-      .attr('transform', 'translate(20, 0)');
 
-    svg.selectAll('.dot')
-      .attr('transform', 'translate(20, 0)');
+    // // 位移
+    // svg.select('.x.axis').selectAll('.tick text')
+    //   .attr("dx", 25);
+
+    // svg.select('.x.axis').selectAll('.tick line')
+    //   .attr('transform', 'translate(25, 0)');
+
+    // svg.selectAll('.xline')
+    //   .attr('transform', 'translate(20, 0)');
+
+    // svg.selectAll('.dot')
+    //   .attr('transform', 'translate(20, 0)');
   </script>
 </body>
 
